@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.421
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glimmer", "glimmer\glimmer.vcxproj", "{2A458FD7-42CD-4A03-9E84-CE6910E80CD6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8A532CE3-9719-4E99-BFF0-C9BC32637E73} = {8A532CE3-9719-4E99-BFF0-C9BC32637E73}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImgLib", "..\imglib\ImgLib.vcxproj", "{8A532CE3-9719-4E99-BFF0-C9BC32637E73}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+		UnitTests|x64 = UnitTests|x64
+		UnitTests|x86 = UnitTests|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2A458FD7-42CD-4A03-9E84-CE6910E80CD6}.Debug|x64.ActiveCfg = Debug|x64
+		{2A458FD7-42CD-4A03-9E84-CE6910E80CD6}.Debug|x64.Build.0 = Debug|x64
+		{2A458FD7-42CD-4A03-9E84-CE6910E80CD6}.Debug|x86.ActiveCfg = Debug|Win32
+		{2A458FD7-42CD-4A03-9E84-CE6910E80CD6}.Debug|x86.Build.0 = Debug|Win32
+		{2A458FD7-42CD-4A03-9E84-CE6910E80CD6}.Release|x64.ActiveCfg = Release|x64
+		{2A458FD7-42CD-4A03-9E84-CE6910E80CD6}.Release|x64.Build.0 = Release|x64
+		{2A458FD7-42CD-4A03-9E84-CE6910E80CD6}.Release|x86.ActiveCfg = Release|Win32
+		{2A458FD7-42CD-4A03-9E84-CE6910E80CD6}.Release|x86.Build.0 = Release|Win32
+		{2A458FD7-42CD-4A03-9E84-CE6910E80CD6}.UnitTests|x64.ActiveCfg = Release|x64
+		{2A458FD7-42CD-4A03-9E84-CE6910E80CD6}.UnitTests|x64.Build.0 = Release|x64
+		{2A458FD7-42CD-4A03-9E84-CE6910E80CD6}.UnitTests|x86.ActiveCfg = Release|Win32
+		{2A458FD7-42CD-4A03-9E84-CE6910E80CD6}.UnitTests|x86.Build.0 = Release|Win32
+		{8A532CE3-9719-4E99-BFF0-C9BC32637E73}.Debug|x64.ActiveCfg = Debug|x64
+		{8A532CE3-9719-4E99-BFF0-C9BC32637E73}.Debug|x64.Build.0 = Debug|x64
+		{8A532CE3-9719-4E99-BFF0-C9BC32637E73}.Debug|x86.ActiveCfg = Debug|Win32
+		{8A532CE3-9719-4E99-BFF0-C9BC32637E73}.Debug|x86.Build.0 = Debug|Win32
+		{8A532CE3-9719-4E99-BFF0-C9BC32637E73}.Release|x64.ActiveCfg = Release|x64
+		{8A532CE3-9719-4E99-BFF0-C9BC32637E73}.Release|x64.Build.0 = Release|x64
+		{8A532CE3-9719-4E99-BFF0-C9BC32637E73}.Release|x86.ActiveCfg = Release|Win32
+		{8A532CE3-9719-4E99-BFF0-C9BC32637E73}.Release|x86.Build.0 = Release|Win32
+		{8A532CE3-9719-4E99-BFF0-C9BC32637E73}.UnitTests|x64.ActiveCfg = UnitTests|x64
+		{8A532CE3-9719-4E99-BFF0-C9BC32637E73}.UnitTests|x64.Build.0 = UnitTests|x64
+		{8A532CE3-9719-4E99-BFF0-C9BC32637E73}.UnitTests|x86.ActiveCfg = UnitTests|Win32
+		{8A532CE3-9719-4E99-BFF0-C9BC32637E73}.UnitTests|x86.Build.0 = UnitTests|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DEFE57FF-205A-4398-A3D9-056879DF2CA2}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="image storage">
+      <UniqueIdentifier>{b9d349cb-8dd0-4131-a5db-198ab7505900}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="io">
+      <UniqueIdentifier>{5c49fe9d-3d2a-43f4-851c-2d2f1cd19dce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="conversion">
+      <UniqueIdentifier>{a8375450-ad36-4981-806f-567c4109db3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="misc">
+      <UniqueIdentifier>{e3edf053-95d6-41c8-a11a-16a8884d5319}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="conversion\dxt block converters">
+      <UniqueIdentifier>{46b3c56c-561d-46fe-a6ed-3d7415c4b73e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="image.cpp">
+      <Filter>image storage</Filter>
+    </ClCompile>
+    <ClCompile Include="block_compressed_image.cpp">
+      <Filter>image storage</Filter>
+    </ClCompile>
+    <ClCompile Include="bitmap_file_reader.cpp">
+      <Filter>io</Filter>
+    </ClCompile>
+    <ClCompile Include="bitmap_file_writer.cpp">
+      <Filter>io</Filter>
+    </ClCompile>
+    <ClCompile Include="dxt1_file_reader.cpp">
+      <Filter>io</Filter>
+    </ClCompile>
+    <ClCompile Include="dxt1_file_writer.cpp">
+      <Filter>io</Filter>
+    </ClCompile>
+    <ClCompile Include="raw_file_buffer.cpp">
+      <Filter>io</Filter>
+    </ClCompile>
+    <ClCompile Include="raw_file_io.cpp">
+      <Filter>io</Filter>
+    </ClCompile>
+    <ClCompile Include="dxt1_to_bitmap_conversion.cpp">
+      <Filter>conversion</Filter>
+    </ClCompile>
+    <ClCompile Include="compress_block_minmax.cpp">
+      <Filter>conversion\dxt block converters</Filter>
+    </ClCompile>
+    <ClCompile Include="bitmap_to_dxt1_converter.cpp">
+      <Filter>conversion</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="utils.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="image.h">
+      <Filter>image storage</Filter>
+    </ClInclude>
+    <ClInclude Include="block_compressed_image.h">
+      <Filter>image storage</Filter>
+    </ClInclude>
+    <ClInclude Include="block_compressed_pixels.h">
+      <Filter>image storage</Filter>
+    </ClInclude>
+    <ClInclude Include="colour_rgb.h">
+      <Filter>image storage</Filter>
+    </ClInclude>
+    <ClInclude Include="colour_rgb.inl">
+      <Filter>image storage</Filter>
+    </ClInclude>
+    <ClInclude Include="bitmap_file_header.h">
+      <Filter>io</Filter>
+    </ClInclude>
+    <ClInclude Include="bitmap_file_reader.h">
+      <Filter>io</Filter>
+    </ClInclude>
+    <ClInclude Include="bitmap_file_writer.h">
+      <Filter>io</Filter>
+    </ClInclude>
+    <ClInclude Include="dxt1_file_header.h">
+      <Filter>io</Filter>
+    </ClInclude>
+    <ClInclude Include="dxt1_file_reader.h">
+      <Filter>io</Filter>
+    </ClInclude>
+    <ClInclude Include="dxt1_file_writer.h">
+      <Filter>io</Filter>
+    </ClInclude>
+    <ClInclude Include="raw_file_buffer.h">
+      <Filter>io</Filter>
+    </ClInclude>
+    <ClInclude Include="raw_file_io.h">
+      <Filter>io</Filter>
+    </ClInclude>
+    <ClInclude Include="dxt1_to_bitmap_conversion.h">
+      <Filter>conversion</Filter>
+    </ClInclude>
+    <ClInclude Include="bitmap_to_dxt1_converter.h">
+      <Filter>conversion</Filter>
+    </ClInclude>
+    <ClInclude Include="compress_block_minmax.h">
+      <Filter>conversion\dxt block converters</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="block_compressed_pixels.inl">
+      <Filter>image storage</Filter>
+    </None>
+  </ItemGroup>
+</Project>
