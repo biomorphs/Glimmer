@@ -1,10 +1,3 @@
-#include <iostream>
-#include <stdint.h>
-#include "../../imglib/image.h"
-#include "../../imglib/raw_file_buffer.h"
-#include "../../imglib/bitmap_file_writer.h"
-#include "../../imglib/raw_file_io.h"
-
 #include "sde/asset_system.h"
 #include "sde/render_system.h"
 #include "sde/job_system.h"
@@ -12,35 +5,25 @@
 #include "engine/engine_startup.h"
 #include "input/input_system.h"
 #include "core/system_registrar.h"
+#include "render.h"
+
+class SystemRegistration : public Engine::IAppSystemRegistrar
+{
+public:
+	void RegisterSystems(Core::ISystemRegistrar& systemManager)
+	{
+		systemManager.RegisterSystem("Jobs", new SDE::JobSystem());
+		systemManager.RegisterSystem("Input", new Input::InputSystem());
+
+		systemManager.RegisterSystem("MyRender", new MyRender(1280,720));
+		
+		systemManager.RegisterSystem("DebugGui", new DebugGui::DebugGuiSystem());
+		systemManager.RegisterSystem("Render", new SDE::RenderSystem());
+	}
+};
 
 int main()
 {
-	const char* c_outputPath = "test.bmp";
-	const ColourRGB c_outputColour(0, 0, 255);
-
-    std::cout << "Glimmer!\n";
-	uint32_t outputResX = 1024;
-	uint32_t outputResY = 1024;
-
-	auto outputImage = std::make_unique<Image>(outputResX, outputResY);
-	for (uint32_t y = 0; y < outputResY; ++y)
-	{
-		for (uint32_t x = 0; x < outputResX; ++x)
-		{
-			outputImage->SetPixelColour(x, y, c_outputColour);
-		}
-	}
-
-	RawFileBuffer outputRawBuffer(outputResX * outputResY * 4);
-	BitmapFileWriter bitmapConverter;
-	if (!bitmapConverter.WriteFile(*outputImage, outputRawBuffer))
-	{
-		std::cout << "Nope";
-		return 1;
-	}
-
-	RawFileBufferWriter fileWriter;
-	fileWriter.WriteTofile(c_outputPath, outputRawBuffer);
-
-	return 0;
+	SystemRegistration sysRegistration;
+	return Engine::Run(sysRegistration, 0, nullptr);
 }
