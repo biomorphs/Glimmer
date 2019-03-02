@@ -5,6 +5,14 @@
 #include "../../imglib/bitmap_file_writer.h"
 #include "../../imglib/raw_file_io.h"
 
+#include "sde/asset_system.h"
+#include "sde/render_system.h"
+#include "sde/job_system.h"
+#include "debug_gui/debug_gui_system.h"
+#include "engine/engine_startup.h"
+#include "input/input_system.h"
+#include "core/system_registrar.h"
+
 int main()
 {
 	const char* c_outputPath = "test.bmp";
