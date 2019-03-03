@@ -6,6 +6,24 @@
 #include "../../imglib/bitmap_file_writer.h"
 #include "../../imglib/raw_file_io.h"
 
+void TraceMeSomethingNice(TraceParamaters& parameters)
+{
+	const uint32_t width = parameters.width;
+	const uint32_t height = parameters.height;
+	uint8_t* outBuffer = parameters.outputBuffer.data();
+
+	for (uint32_t y = 0; y < height; ++y)
+	{
+		for (uint32_t x = 0; x < width; ++x)
+		{
+			*outBuffer++ = 255;
+			*outBuffer++ = 255;
+			*outBuffer++ = 255;
+			*outBuffer++ = 255;
+		}
+	}
+}
+
 void Trace()
 {
 	const char* c_outputPath = "test.bmp";

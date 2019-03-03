@@ -100,6 +100,11 @@ namespace DebugGui
 		ImGui::PlotHistogram("", buffer.GetValues(), buffer.ValueCount(), 0, label, FLT_MAX, FLT_MAX, graphSize);
 	}
 
+	void DebugGuiSystem::Image(Render::Texture& src, glm::vec2 size, glm::vec2 uv0, glm::vec2 uv1)
+	{
+		ImGui::Image(reinterpret_cast<ImTextureID>(src.GetHandle()), { size.x,size.y }, { uv0.x, uv0.y }, { uv1.x, uv1.y });
+	}
+
 	bool DebugGuiSystem::Tick()
 	{
 		m_renderer->RebuildMesh();		// Update UI mesh for last frame

@@ -15,6 +15,7 @@ namespace Render
 		Texture();
 		~Texture();
 
+		bool Update(const std::vector<TextureSource>& src);
 		bool Create(const std::vector<TextureSource>& src);
 		void Destroy();
 

@@ -249,6 +249,50 @@ namespace Render
 		return true;
 	}
 
+	bool Texture::Update(const std::vector<TextureSource>& src)
+	{
+		SDE_RENDER_ASSERT(m_handle != 0);
+		SDE_ASSERT(src.size() > 0);
+		if (!ValidateSource(src))
+		{
+			SDE_LOGC("Source data not valid for this texture");
+			return false;
+		}
+
+		// only support uncompressed flat textures for now, laziness inbound
+		if (ShouldCreateCompressed(src[0].SourceFormat()) || src.size() != 1)
+		{
+			return false;
+		}
+
+		glBindTexture(GL_TEXTURE_2D, m_handle);
+		SDE_RENDER_PROCESS_GL_ERRORS_RET("glBindTexture");
+
+		uint32_t glStorageFormat = SourceFormatToGLStorageFormat(src[0].SourceFormat());
+		uint32_t glInternalFormat = SourceFormatToGLInternalFormat(src[0].SourceFormat());
+		uint32_t glInternalType = SourceFormatToGLInternalType(src[0].SourceFormat());
+		SDE_RENDER_ASSERT(glStorageFormat != -1);
+		SDE_RENDER_ASSERT(glInternalFormat != -1);
+		SDE_RENDER_ASSERT(glInternalType != -1);
+
+		const uint32_t mipCount = src[0].MipCount();
+		for (uint32_t m = 0; m < mipCount; ++m)
+		{
+			uint32_t w = 0, h = 0;
+			size_t size = 0;
+			const uint8_t* mipData = src[0].MipLevel(m, w, h, size);
+			SDE_ASSERT(mipData);
+
+			glTexSubImage2D(GL_TEXTURE_2D, m, 0, 0, w, h, glInternalFormat, glInternalType, mipData);
+			SDE_RENDER_PROCESS_GL_ERRORS_RET("glCompressedTexSubImage2D");
+		}
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+		SDE_RENDER_PROCESS_GL_ERRORS_RET("glBindTexture");
+
+		return true;
+	}
+
 	bool Texture::Create(const std::vector<TextureSource>& src)
 	{
 		SDE_RENDER_ASSERT(m_handle == 0);
