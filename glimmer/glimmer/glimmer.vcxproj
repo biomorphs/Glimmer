@@ -174,11 +174,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="geometry.cpp" />
     <ClCompile Include="glimmer.cpp" />
     <ClCompile Include="render.cpp" />
     <ClCompile Include="traceboi.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="geometry.h" />
     <ClInclude Include="render.h" />
     <ClInclude Include="traceboi.h" />
   </ItemGroup>

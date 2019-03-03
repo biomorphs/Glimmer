@@ -1,11 +1,7 @@
 #pragma once
 #include <vector>
 #include "math/glm_headers.h"
-
-struct Sphere
-{
-	glm::vec4 m_posAndRadius;
-};
+#include "geometry.h"
 
 struct Light
 {
@@ -20,6 +16,7 @@ struct TraceParamaters
 	std::vector<Light> lights;
 	uint32_t width;
 	uint32_t height;
+	int maxRecursions;
 };
 
 void TraceMeSomethingNice(const TraceParamaters& parameters);

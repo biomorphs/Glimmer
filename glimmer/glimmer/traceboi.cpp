@@ -1,17 +1,8 @@
 #include "traceboi.h"
 #include <iostream>
 #include <stdint.h>
-#include "../../imglib/image.h"
-#include "../../imglib/raw_file_buffer.h"
-#include "../../imglib/bitmap_file_writer.h"
-#include "../../imglib/raw_file_io.h"
 #include "math/glm_headers.h"
-
-struct Ray
-{
-	glm::vec3 m_origin;
-	glm::vec3 m_direction;
-};
+#include "geometry.h"
 
 struct RenderParams
 {
@@ -20,56 +11,8 @@ struct RenderParams
 	float m_fov;
 	float m_scale;
 	float m_aspectRatio;
+	int m_maxRecursions;
 };
-
-//bool RayPlaneIntersect(const Ray& r, const Plane& p, float &t, glm::vec3& normal)
-//{
-//	float denom = glm::dot(p.m_normal, r.m_direction);
-//	if (denom > 1e-6f) {
-//		t = glm::dot(p.m_point - r.m_origin, p.m_normal) / denom;
-//		normal = p.m_normal;
-//		return (t >= 0);
-//	}
-//
-//	return false;
-//}
-
-bool RaySphereIntersect(const Ray& ray, const Sphere& sphere, float &t, glm::vec3& normal)
-{
-	float radius2 = sphere.m_posAndRadius.w * sphere.m_posAndRadius.w;
-	glm::vec3 l = glm::vec3(sphere.m_posAndRadius) - ray.m_origin;
-	float tca = glm::dot(l, ray.m_direction);
-	if (tca < 0) 
-	{
-		return false;
-	}
-	float d2 = glm::dot(l, l) - tca * tca;
-	if (d2 > radius2)
-	{
-		return false;
-	}
-	float thc = sqrt(radius2 - d2);
-	float t0 = tca - thc;
-	float t1 = tca + thc;
-	if (t0 > t1)
-	{
-		std::swap(t0, t1);
-	}
-	if (t0 < 0)
-	{
-		t0 = t1; 
-		if (t0 < 0)
-		{
-			return false;
-		}
-	}
-	t = t0;
-	auto spherePos = glm::vec3(sphere.m_posAndRadius);
-	auto hitPos = ray.m_origin + ray.m_direction * t;
-	auto hitLength = glm::length(hitPos - spherePos);
-	normal = glm::normalize(hitPos - spherePos);
-	return true;
-}
 
 float GetAspectRatio(const RenderParams& globals)
 {
@@ -88,16 +31,16 @@ glm::vec3 GeneratePrimaryRayDirection(const RenderParams& globals, glm::vec2 pix
 	return direction;
 }
 
-glm::vec4 CastRay(const Ray& ray, const TraceParamaters& globals)
+bool RayHitObject(const Ray& ray, const TraceParamaters& globals, float& t, glm::vec3& hitNormal)
 {
 	float closestT = std::numeric_limits<float>::max();
-	glm::vec3 closestNormal;
+	glm::vec3 closestNormal(0.0f);
 	glm::vec3 normal;
 	bool hit = false;
-	float t = 0.0f;
-	for(auto s : globals.spheres)
+
+	for (auto s : globals.spheres)
 	{
-		if (RaySphereIntersect(ray, s, t, normal))
+		if (Geometry::RaySphereIntersect(ray, s, t, normal))
 		{
 			if (t < closestT)
 			{
@@ -110,18 +53,50 @@ glm::vec4 CastRay(const Ray& ray, const TraceParamaters& globals)
 
 	if (hit)
 	{
+		t = closestT;
+		hitNormal = closestNormal;
+	}
+	return hit;
+}
+
+glm::vec4 CastRay(const Ray& ray, const TraceParamaters& globals, int depth)
+{
+	float hitT = 0.0f;
+	glm::vec3 hitNormal(0.0f);
+	bool rayHitObject = RayHitObject(ray, globals, hitT, hitNormal);
+
+	if (rayHitObject)
+	{
 		glm::vec4 accumColour( 0.0f );
-		auto hitPosition = ray.m_origin + ray.m_direction * closestT;
+		auto hitPosition = ray.m_origin + ray.m_direction * hitT;
 		for (auto l : globals.lights)
 		{
 			auto pointToLight = glm::normalize(l.m_position - hitPosition);
-			auto nDotL = glm::dot(closestNormal, pointToLight);
-			accumColour += glm::clamp(nDotL * l.m_diffuse, { 0.0f }, { 1.0f });
+			auto nDotL = glm::dot(hitNormal, pointToLight);
+
+			// shadow
+			Ray pointToLightRay = { hitPosition, pointToLight };
+			float shadowT = 0.0f;
+			glm::vec3 shadowNormal(0.0f);
+			bool inShadow = RayHitObject(pointToLightRay, globals, shadowT, shadowNormal);
+			glm::vec4 shadow = glm::vec4(1.0f) * (inShadow ? 0.5f : 1.0f);
+			accumColour += glm::clamp(nDotL * l.m_diffuse * shadow, { 0.0f }, { 1.0f });
 		}
-		return glm::clamp(accumColour, { 0.0f }, { 1.0f });
+		
+		if (depth < globals.maxRecursions)
+		{
+			Ray reflection = { hitPosition, glm::reflect(ray.m_direction, hitNormal) };
+			glm::vec4 reflectionColour = CastRay(reflection, globals, depth + 1);
+			float reflectionFactor = glm::dot(reflection.m_direction, hitNormal) * 0.9f;
+			return glm::clamp(accumColour + reflectionColour * reflectionFactor, { 0.0f }, { 1.0f });
+		}
+		else
+		{
+			return glm::clamp(accumColour, { 0.0f }, { 1.0f });
+		}
 	}
 
-	return hit ? glm::vec4(0.5f + closestNormal * 0.5f, 1.0f) : glm::vec4(0.0f,0.0f,0.0f,1.0f);
+	return glm::vec4(0.0f,0.0f,0.0f,1.0f);
 }
 
 void TraceMeSomethingNice(const TraceParamaters& parameters)
@@ -137,6 +112,7 @@ void TraceMeSomethingNice(const TraceParamaters& parameters)
 	globals.m_aspectRatio = GetAspectRatio(globals);
 	globals.m_cameraToWorld = glm::lookAt(glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,-1.0f), glm::vec3(0.0f,1.0f,0.0f));
 	glm::vec3 origin = (glm::vec3)(globals.m_cameraToWorld * glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+	globals.m_maxRecursions = parameters.maxRecursions;
 
 	for (uint32_t y = 0; y < height; ++y)
 	{
@@ -145,7 +121,7 @@ void TraceMeSomethingNice(const TraceParamaters& parameters)
 			Ray primaryRay;
 			primaryRay.m_origin = origin;
 			primaryRay.m_direction = GeneratePrimaryRayDirection(globals, { (float)x, (float)y });
-			glm::vec4 outColour = CastRay(primaryRay, parameters);
+			glm::vec4 outColour = CastRay(primaryRay, parameters, 0);
 			*(uint32_t*)outBuffer = (uint8_t)(outColour.r * 255.0f) |
 				(uint8_t)(outColour.g * 255.0f) << 8 |
 				(uint8_t)(outColour.b * 255.0f) << 16 |
@@ -153,34 +129,4 @@ void TraceMeSomethingNice(const TraceParamaters& parameters)
 			outBuffer+=4;
 		}
 	}
-}
-
-void Trace()
-{
-	const char* c_outputPath = "test.bmp";
-	const ColourRGB c_outputColour(0, 0, 255);
-
-	std::cout << "Glimmer!\n";
-	uint32_t outputResX = 1024;
-	uint32_t outputResY = 1024;
-
-	auto outputImage = std::make_unique<Image>(outputResX, outputResY);
-	for (uint32_t y = 0; y < outputResY; ++y)
-	{
-		for (uint32_t x = 0; x < outputResX; ++x)
-		{
-			outputImage->SetPixelColour(x, y, c_outputColour);
-		}
-	}
-
-	RawFileBuffer outputRawBuffer(outputResX * outputResY * 4);
-	BitmapFileWriter bitmapConverter;
-	if (!bitmapConverter.WriteFile(*outputImage, outputRawBuffer))
-	{
-		std::cout << "Nope";
-		return;
-	}
-
-	RawFileBufferWriter fileWriter;
-	fileWriter.WriteTofile(c_outputPath, outputRawBuffer);
 }
