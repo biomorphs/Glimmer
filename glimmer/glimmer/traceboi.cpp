@@ -22,17 +22,17 @@ struct RenderParams
 	float m_aspectRatio;
 };
 
-bool RayPlaneIntersect(const Ray& r, const Plane& p, float &t, glm::vec3& normal)
-{
-	float denom = glm::dot(p.m_normal, r.m_direction);
-	if (denom > 1e-6f) {
-		t = glm::dot(p.m_point - r.m_origin, p.m_normal) / denom;
-		normal = p.m_normal;
-		return (t >= 0);
-	}
-
-	return false;
-}
+//bool RayPlaneIntersect(const Ray& r, const Plane& p, float &t, glm::vec3& normal)
+//{
+//	float denom = glm::dot(p.m_normal, r.m_direction);
+//	if (denom > 1e-6f) {
+//		t = glm::dot(p.m_point - r.m_origin, p.m_normal) / denom;
+//		normal = p.m_normal;
+//		return (t >= 0);
+//	}
+//
+//	return false;
+//}
 
 bool RaySphereIntersect(const Ray& ray, const Sphere& sphere, float &t, glm::vec3& normal)
 {
@@ -89,23 +89,38 @@ glm::vec3 GeneratePrimaryRayDirection(const RenderParams& globals, glm::vec2 pix
 
 glm::vec4 CastRay(const Ray& ray, const TraceParamaters& globals)
 {
-	float t = std::numeric_limits<float>::max();
+	float closestT = std::numeric_limits<float>::max();
+	glm::vec3 closestNormal;
 	glm::vec3 normal;
+	bool hit = false;
+	float t = 0.0f;
 	for(auto s : globals.spheres)
 	{
 		if (RaySphereIntersect(ray, s, t, normal))
 		{
-			return glm::vec4(normal,1.0f);
+			if (t < closestT)
+			{
+				closestNormal = normal;
+				closestT = t;
+				hit = true;
+			}
 		}
 	}
-	for (auto p : globals.planes)
+
+	if (hit)
 	{
-		if (RayPlaneIntersect(ray, p, t, normal))
+		glm::vec4 accumColour( 0.0f );
+		auto hitPosition = ray.m_origin + ray.m_direction * closestT;
+		for (auto l : globals.lights)
 		{
-			return glm::vec4(normal, 1.0f);
+			auto pointToLight = glm::normalize(l.m_position - hitPosition);
+			auto nDotL = glm::dot(closestNormal, pointToLight);
+			accumColour += glm::clamp(nDotL * l.m_diffuse, { 0.0f }, { 1.0f });
 		}
+		return glm::clamp(accumColour, { 0.0f }, { 1.0f });
 	}
-	return glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
+	return hit ? glm::vec4(0.5f + closestNormal * 0.5f, 1.0f) : glm::vec4(0.0f,0.0f,0.0f,1.0f);
 }
 
 void TraceMeSomethingNice(const TraceParamaters& parameters)
@@ -119,7 +134,7 @@ void TraceMeSomethingNice(const TraceParamaters& parameters)
 	globals.m_scale = tan(glm::radians(globals.m_fov * 0.5f));
 	globals.m_imageDimensions = { width, height };
 	globals.m_aspectRatio = GetAspectRatio(globals);
-	globals.m_cameraToWorld = glm::lookAt(glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,1.0f), glm::vec3(0.0f,1.0f,0.0f));
+	globals.m_cameraToWorld = glm::lookAt(glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,-1.0f), glm::vec3(0.0f,1.0f,0.0f));
 	glm::vec3 origin = (glm::vec3)(globals.m_cameraToWorld * glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
 
 	for (uint32_t y = 0; y < height; ++y)
@@ -130,10 +145,11 @@ void TraceMeSomethingNice(const TraceParamaters& parameters)
 			primaryRay.m_origin = origin;
 			primaryRay.m_direction = GeneratePrimaryRayDirection(globals, { (float)x, (float)y });
 			glm::vec4 outColour = CastRay(primaryRay, parameters);
-			*outBuffer++ = (uint8_t)(outColour.r * 255.0f);
-			*outBuffer++ = (uint8_t)(outColour.g * 255.0f);
-			*outBuffer++ = (uint8_t)(outColour.b * 255.0f);
-			*outBuffer++ = (uint8_t)(outColour.a * 255.0f);
+			*(uint32_t*)outBuffer = (uint8_t)(outColour.r * 255.0f) |
+				(uint8_t)(outColour.g * 255.0f) << 8 |
+				(uint8_t)(outColour.b * 255.0f) << 16 |
+				(uint8_t)(outColour.a * 255.0f) << 24;
+			outBuffer+=4;
 		}
 	}
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "core/system.h"
 #include "math/glm_headers.h"
+#include "traceboi.h"
 #include <memory>
 #include <atomic>
 #include <vector>
@@ -31,6 +32,20 @@ public:
 	virtual void Shutdown();
 private:
 	bool RenderFrame();
+	void UpdateControls();
+	void UpdateScene();
+
+	std::vector<Sphere> m_spheres = {
+		{ glm::vec4(0.0f,-2.0f,-10.0f,2.0f)},
+		{ glm::vec4(3.0f,0.0f,-10.0f,1.25f)},
+		{ glm::vec4(-3.0f,0.0f,-10.0,1.25f)},
+		{ glm::vec4(0.0f,3.0f,-10.0f,1.75f)}
+	};
+	std::vector<Light> m_lights = {
+		{ {-8.0f,10.0f,0.0f}, {0.85f,0.25f,0.0f,1.0f} },
+		{ {8.0f,10.0f,0.0f}, {0.8f,0.76f,0.0f,1.0f} },
+		{ {0.0f,-5.0f,0.0f}, {0.2f,0.1f,0.15f,1.0f} },
+	};
 
 	std::unique_ptr<Render::Texture> m_outputTexture;
 	glm::ivec2 m_windowResolution;

@@ -24,7 +24,7 @@ namespace DebugGui
 	class DebugGuiRender
 	{
 	public:
-		DebugGuiRender() { }
+		DebugGuiRender();
 		~DebugGuiRender();
 		bool Create(float viewportWidth, float viewportHeight);
 		void Destroy();
@@ -45,6 +45,7 @@ namespace DebugGui
 			glm::vec4 m_clipRect;
 		};
 
+		std::vector<float> m_tempDataBuffers[3];
 		float m_viewportWidth;
 		float m_viewportHeight;
 		std::unique_ptr<Render::Texture> m_fontTexture;

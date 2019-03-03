@@ -52,8 +52,9 @@ namespace DebugGui
 	DebugGuiRender* g_thisInstance = nullptr;	// Horrible, but not much choice
 	void DebugGuiRender::ImgGui_RenderDrawLists(ImDrawData* draw_data)
 	{
-		// We need some temporary buffers to store the raw vertex data before upload to the mesh
-		std::vector<float> tempDataBuffers[3];
+		g_thisInstance->m_tempDataBuffers[0].resize(0);
+		g_thisInstance->m_tempDataBuffers[1].resize(0);
+		g_thisInstance->m_tempDataBuffers[2].resize(0);
 
 		// There are multiple command lists to process
 		for (int n = 0; n < draw_data->CmdListsCount; n++)
@@ -63,14 +64,16 @@ namespace DebugGui
 			const auto& indexBuffer = thisCommandList->IdxBuffer;
 
 			// Add all vertices for this command to the temp buffer
-			uint32_t startVertexThisCmd = (uint32_t)tempDataBuffers[0].size() / 2;
+			uint32_t startVertexThisCmd = (uint32_t)g_thisInstance->m_tempDataBuffers[0].size() / 2;
 			for (int thisIndex = 0;thisIndex < indexBuffer.size(); ++thisIndex)
 			{
 				const auto& theVert = vertexBuffer[indexBuffer[thisIndex]];
-				tempDataBuffers[0].push_back(theVert.pos.x);	tempDataBuffers[0].push_back(theVert.pos.y);
-				tempDataBuffers[1].push_back(theVert.uv.x);		tempDataBuffers[1].push_back(theVert.uv.y);
+				g_thisInstance->m_tempDataBuffers[0].push_back(theVert.pos.x);	
+				g_thisInstance->m_tempDataBuffers[0].push_back(theVert.pos.y);
+				g_thisInstance->m_tempDataBuffers[1].push_back(theVert.uv.x);		
+				g_thisInstance->m_tempDataBuffers[1].push_back(theVert.uv.y);
 				glm::vec4 colour = ColourToVec4(theVert.col);
-				tempDataBuffers[2].insert(tempDataBuffers[2].end(), glm::value_ptr(colour), glm::value_ptr(colour) + 4);
+				g_thisInstance->m_tempDataBuffers[2].insert(g_thisInstance->m_tempDataBuffers[2].end(), glm::value_ptr(colour), glm::value_ptr(colour) + 4);
 			}
 
 			// For each command in this list, we make a chunk in the mesh, and cache any data we need to render later
@@ -92,7 +95,8 @@ namespace DebugGui
 				}
 			}
 		}
-		g_thisInstance->UploadVertexData(tempDataBuffers[0], tempDataBuffers[1], tempDataBuffers[2]);
+		g_thisInstance->UploadVertexData(g_thisInstance->m_tempDataBuffers[0], 
+			g_thisInstance->m_tempDataBuffers[1], g_thisInstance->m_tempDataBuffers[2]);
 	}
 
 	void DebugGuiRender::AddMeshChunk(uint32_t startVert, uint32_t vertCount, uint32_t textureId, const glm::vec4& clipRect)
@@ -138,6 +142,14 @@ namespace DebugGui
 			instanceUniforms.SetSampler("Texture", m_chunkInstanceProps[meshChunk].m_textureHandle);
 			pass.AddInstance(m_mesh.get(), std::move(instanceUniforms), meshChunk, meshChunk + 1);
 		}
+	}
+
+	DebugGuiRender::DebugGuiRender()
+	{
+		const size_t c_reservedBuffer = 1024 * 8;
+		m_tempDataBuffers[0].reserve(c_reservedBuffer);
+		m_tempDataBuffers[1].reserve(c_reservedBuffer);
+		m_tempDataBuffers[2].reserve(c_reservedBuffer);
 	}
 
 	DebugGuiRender::~DebugGuiRender()

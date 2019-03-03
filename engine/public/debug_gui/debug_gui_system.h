@@ -50,7 +50,7 @@ namespace DebugGui
 		virtual bool PostInit() override;
 		virtual bool Tick() override;
 		virtual void Shutdown() override;
-		void BeginWindow(bool& windowOpen, const char* windowName);
+		void BeginWindow(bool& windowOpen, const char* windowName, glm::vec2 size=glm::vec2(-1.f));
 		void EndWindow();
 		void Text(const char* txt);
 		void Separator();
