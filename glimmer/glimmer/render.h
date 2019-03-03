@@ -39,7 +39,7 @@ private:
 		{ glm::vec4(0.0f,-2.0f,-10.0f,2.0f)},
 		{ glm::vec4(3.0f,0.0f,-10.0f,1.25f)},
 		{ glm::vec4(-3.0f,0.0f,-10.0,1.25f)},
-		{ glm::vec4(0.0f,3.0f,-10.0f,1.75f)}
+		{ glm::vec4(0.0f,2.5f,-10.0f,1.75f)}
 	};
 	std::vector<Light> m_lights = {
 		{ {-8.0f,10.0f,0.0f}, {0.85f,0.25f,0.0f,1.0f} },

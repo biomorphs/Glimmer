@@ -68,9 +68,13 @@ namespace DebugGui
 		io.MouseDown[2] = (mouseState.m_buttonState & Input::MouseButtons::RightButton) != 0;
 	}
 
-	void DebugGuiSystem::BeginWindow(bool& windowOpen, const char* windowName)
+	void DebugGuiSystem::BeginWindow(bool& windowOpen, const char* windowName, glm::vec2 size)
 	{
 		ImGui::Begin(windowName, &windowOpen, 0);
+		if (size.x > 0 && size.y > 0)
+		{
+			ImGui::SetWindowSize(ImVec2(size.x, size.y));
+		}
 	}
 
 	void DebugGuiSystem::EndWindow()
@@ -132,8 +136,6 @@ namespace DebugGui
 		// Start next frame
 		UpdateImgGuiInputState();
 		ImGui::NewFrame();
-
-		ImGui::ShowMetricsWindow();
 
 		return true;
 	}

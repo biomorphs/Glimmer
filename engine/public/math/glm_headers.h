@@ -23,6 +23,7 @@ Matt Hoyle
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/fast_square_root.hpp>
 
 #ifdef I_DISABLED_DEBUG
 #undef NDEBUG

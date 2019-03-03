@@ -61,16 +61,33 @@ bool MyRender::PostInit()
 	return true;
 }
 
-bool MyRender::RenderFrame()
+void MyRender::UpdateScene()
 {
+	for (int s = 0; s < m_spheres.size(); ++s)
+	{
+		char label[256] = { '\0' };
+		sprintf_s(label, "Sphere %d", s);
+		m_debugGui->DragVector(label, m_spheres[s].m_posAndRadius, 0.25f);
+	}
+
+	for (int l = 0; l < m_lights.size(); ++l)
+	{
+		char label[256] = { '\0' };
+		sprintf_s(label, "Light %d Position", l);
+		m_debugGui->DragVector(label, m_lights[l].m_position, 0.25f);
+		sprintf_s(label, "Light %d Colour", l);
+		m_debugGui->DragVector(label, m_lights[l].m_diffuse, 0.05f, 0.0f, 1.0f);
+	}
+}
+
+void MyRender::UpdateControls()
+{
+	static bool s_controlsOpen = true;
+	m_debugGui->BeginWindow(s_controlsOpen, "Controls", {512,512});
+
 	char text[256] = { '\0' };
 	sprintf_s(text, "Raytrace time: %fs", m_lastTraceTime);
 	m_debugGui->Text(text);
-
-	if (m_outputTexture)
-	{
-		m_debugGui->Image(*m_outputTexture, { c_outputSizeX, c_outputSizeY });
-	}
 
 	char* statusTxt = nullptr;
 	switch (m_traceStatus)
@@ -93,7 +110,12 @@ bool MyRender::RenderFrame()
 
 	static bool isPaused = false;
 	m_debugGui->Checkbox("Paused", &isPaused);
-	if(isPaused)
+
+	UpdateScene();
+
+	m_debugGui->EndWindow();
+
+	if (isPaused)
 	{
 		int traceReady = Trace::Ready;
 		m_traceStatus.compare_exchange_strong(traceReady, Trace::Paused);
@@ -103,43 +125,30 @@ bool MyRender::RenderFrame()
 		int tracePaused = Trace::Paused;
 		m_traceStatus.compare_exchange_strong(tracePaused, Trace::Ready);
 	}
+}
+
+bool MyRender::RenderFrame()
+{
+	UpdateControls();
+
+	bool windowOpen = true;
+	m_debugGui->BeginWindow(windowOpen, "Output", glm::vec2(c_outputSizeX + 16, c_outputSizeY + 32));
+	if (m_outputTexture)
+	{
+		m_debugGui->Image(*m_outputTexture, { c_outputSizeX, c_outputSizeY });
+	}
+	m_debugGui->EndWindow();
 
 	return true;
 }
 
 bool MyRender::Tick()
 {
-	static std::vector<Sphere> spheres = {
-		{ glm::vec4(0.0f,0.0f,10.0f,1.0f)},
-		{ glm::vec4(3.0f,0.0f,10.0f,1.0f)},
-		{ glm::vec4(-3.0f,0.0f,10.0f,1.0f)},
-		{ glm::vec4(0.0f,3.0f,10.0f,1.0f)}
-	};
-	static std::vector<Plane> planes = {
-		{{1.0f,0.0f,0.0f},{0.0f,0.0f,0.0f}}
-	};
-
-	for (int s = 0; s < spheres.size(); ++s)
-	{
-		char label[256] = { '\0' };
-		sprintf_s(label, "Sphere %d", s);
-		m_debugGui->DragVector(label, spheres[s].m_posAndRadius, 0.25f);
-	}
-
-	for (int p = 0; p < planes.size(); ++p)
-	{
-		char label[256] = { '\0' };
-		sprintf_s(label, "Plane Normal %d", p);
-		m_debugGui->DragVector(label, planes[p].m_normal, 0.1f, -1.0f, 1.0f);
-		sprintf_s(label, "Plane Pos %d", p);
-		m_debugGui->DragVector(label, planes[p].m_point, 0.25f, -100.0f, 100.0f);
-	}
-
 	// If we can switch from ready->inprogress, its go time
 	int traceReady = Trace::Ready;
 	if (m_traceStatus.compare_exchange_strong(traceReady, Trace::InProgress))
 	{
-		TraceParamaters params = { m_traceResult, spheres, planes, c_outputSizeX, c_outputSizeY };
+		TraceParamaters params = { m_traceResult, m_spheres, m_lights, c_outputSizeX, c_outputSizeY };
 		m_jobSystem->PushJob([=]()
 		{
 			Core::ScopedTimer timeThis(m_lastTraceTime);
