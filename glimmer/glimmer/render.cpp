@@ -18,7 +18,7 @@ MyRender::MyRender(int windowResX, int windowResY)
 	, m_debugGui(nullptr)
 	, m_jobSystem(nullptr)
 	, m_traceStatus(Trace::Ready)
-	, m_lastTraceTime(0.0f)
+	, m_jobsInProgress(0)
 {
 	m_traceResult.resize(c_outputSizeX * c_outputSizeY * 4);
 }
@@ -90,7 +90,7 @@ void MyRender::UpdateControls()
 	m_debugGui->BeginWindow(s_controlsOpen, "Controls", {512,512});
 
 	char text[256] = { '\0' };
-	sprintf_s(text, "Raytrace time: %fs", m_lastTraceTime);
+	sprintf_s(text, "Raytrace time: %fs", m_lastTraceTime.load());
 	m_debugGui->Text(text);
 
 	char* statusTxt = nullptr;
@@ -148,17 +148,31 @@ bool MyRender::RenderFrame()
 
 bool MyRender::Tick()
 {
+	Core::Timer jobTimer;
+
+	int c_numJobs = 4;
 	// If we can switch from ready->inprogress, its go time
 	int traceReady = Trace::Ready;
 	if (m_traceStatus.compare_exchange_strong(traceReady, Trace::InProgress))
 	{
-		TraceParamaters params = { m_traceResult, m_spheres, m_lights, m_skyColour, c_outputSizeX, c_outputSizeY, 8 };
-		m_jobSystem->PushJob([=]()
+		m_jobsInProgress = c_numJobs;
+		m_traceStartTime = jobTimer.GetSeconds();
+		for (int j = 0; j < c_numJobs; ++j)
 		{
-			Core::ScopedTimer timeThis(m_lastTraceTime);
-			TraceMeSomethingNice(params);
-			m_traceStatus = Trace::Complete;
-		});
+			// split the image vertically
+			glm::ivec2 origin(0, j * (c_outputSizeY / c_numJobs));
+			glm::ivec2 dimensions(c_outputSizeX, c_outputSizeX / c_numJobs);
+			TraceParamaters params = { m_traceResult, m_spheres, m_lights, m_skyColour, {c_outputSizeX, c_outputSizeY}, origin, dimensions, 8 };
+			m_jobSystem->PushJob([=]()
+			{
+				TraceMeSomethingNice(params);
+				if (--m_jobsInProgress <= 0)
+				{
+					m_lastTraceTime = jobTimer.GetSeconds() - m_traceStartTime;
+					m_traceStatus = Trace::Complete;
+				}
+			});
+		}
 	}
 
 	int traceComplete = Trace::Complete;

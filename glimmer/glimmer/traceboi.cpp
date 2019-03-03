@@ -96,12 +96,12 @@ glm::vec4 CastRay(const Ray& ray, const TraceParamaters& globals, int depth)
 	glm::vec3 hitNormal(0.0f);
 	SceneMaterial hitMaterial;
 	bool rayHitObject = RayHitObject(ray, globals, hitT, hitNormal, hitMaterial);
+	glm::vec4 outColour(0.0f);
 	if (rayHitObject)
 	{
 		auto hitPosition = ray.m_origin + ray.m_direction * hitT;
 		if (hitMaterial.m_type == Diffuse)
 		{
-			glm::vec4 accumColour(0.0f);
 			for (auto l : globals.lights)
 			{
 				auto pointToLight = glm::normalize(l.m_position - hitPosition);
@@ -113,11 +113,11 @@ glm::vec4 CastRay(const Ray& ray, const TraceParamaters& globals, int depth)
 				glm::vec3 shadowNormal(0.0f);
 				SceneMaterial shadowMaterial;
 				bool inShadow = RayHitObject(pointToLightRay, globals, shadowT, shadowNormal, shadowMaterial);
-				accumColour += (nDotL * l.m_diffuse) * (inShadow ? 0.3f : 1.0f);
+				outColour += (nDotL * l.m_diffuse) * (inShadow ? 0.0f : 1.0f);
 			}
-			return glm::clamp(accumColour, { 0.0f }, { 1.0f });
 		}
-		else if (hitMaterial.m_type == ReflectRefract)
+		else 
+			if (hitMaterial.m_type == ReflectRefract)
 		{
 			static float bias = 0.001f;
 			float frenelFactor = fresnel(ray.m_direction, hitNormal, hitMaterial.m_refractiveIndex);
@@ -127,50 +127,56 @@ glm::vec4 CastRay(const Ray& ray, const TraceParamaters& globals, int depth)
 
 			if (frenelFactor < 1.0f)	// Not total internal reflection
 			{
-				glm::vec3 refractionDir = glm::normalize(refract(ray.m_direction, hitNormal, hitMaterial.m_refractiveIndex));
+				glm::vec3 refractionDir = (refract(ray.m_direction, hitNormal, hitMaterial.m_refractiveIndex));
 				glm::vec3 refractionOrig = outside ? hitPosition - biasVec : hitPosition + biasVec;
 				refractionColor = CastRay({ refractionOrig, refractionDir }, globals, depth + 1);
 			}
 			auto reflectionDir = glm::reflect(ray.m_direction, hitNormal);
 			auto reflectionOrigin = outside ? hitPosition + biasVec : hitPosition - biasVec;
-
 			Ray reflection = { reflectionOrigin, reflectionDir };
 			glm::vec4 reflectionColour = CastRay(reflection, globals, depth + 1);
-			return glm::clamp(reflectionColour * frenelFactor + refractionColor * (1.0f - frenelFactor), { 0.0f }, { 1.0f });
+			glm::vec4 mixed = (reflectionColour * frenelFactor) + (refractionColor * (1.0f - frenelFactor));
+			//outColour = outColour * 0.5f + glm::clamp(mixed, 0.0f, 1.0f) * 0.5f;
+			outColour = glm::clamp(mixed, 0.0f, 1.0f);
 		}
 	}
+	else
+	{
+		outColour = globals.skyColour;
+	}
 
-	return globals.skyColour;
+	return glm::clamp(outColour, 0.0f,1.0f);
 }
 
 void TraceMeSomethingNice(const TraceParamaters& parameters)
 {
-	const uint32_t width = parameters.width;
-	const uint32_t height = parameters.height;
-	uint8_t* outBuffer = parameters.outputBuffer.data();
+	const glm::ivec2 imageMin = parameters.outputOrigin;
+	const glm::ivec2 imageMax = parameters.outputOrigin + parameters.outputDimensions;
 
 	RenderParams globals;
 	globals.m_fov = 51.52f;
 	globals.m_scale = tan(glm::radians(globals.m_fov * 0.5f));
-	globals.m_imageDimensions = { width, height };
+	globals.m_imageDimensions = parameters.imageDimensions;
 	globals.m_aspectRatio = GetAspectRatio(globals);
 	globals.m_cameraToWorld = glm::lookAt(glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,-1.0f), glm::vec3(0.0f,1.0f,0.0f));
 	glm::vec3 origin = (glm::vec3)(globals.m_cameraToWorld * glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
 	globals.m_maxRecursions = parameters.maxRecursions;
 
-	for (uint32_t y = 0; y < height; ++y)
+	for (int y = imageMin.y; y < imageMax.y; ++y)
 	{
-		for (uint32_t x = 0; x < width; ++x)
+		for (int x = imageMin.x; x < imageMax.x; ++x)
 		{
 			Ray primaryRay;
 			primaryRay.m_origin = origin;
 			primaryRay.m_direction = GeneratePrimaryRayDirection(globals, { (float)x, (float)y });
 			glm::vec4 outColour = CastRay(primaryRay, parameters, 0);
-			*(uint32_t*)outBuffer = (uint8_t)(outColour.r * 255.0f) |
+
+			size_t pixelIndex = (y * parameters.imageDimensions.x) + x;
+			uint8_t* outPixel = parameters.outputBuffer.data() + pixelIndex * sizeof(uint32_t);
+			*(uint32_t*)outPixel = (uint8_t)(outColour.r * 255.0f) |
 				(uint8_t)(outColour.g * 255.0f) << 8 |
 				(uint8_t)(outColour.b * 255.0f) << 16 |
 				(uint8_t)(outColour.a * 255.0f) << 24;
-			outBuffer+=4;
 		}
 	}
 }

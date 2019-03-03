@@ -37,13 +37,13 @@ private:
 
 	std::vector<SceneSphere> m_spheres = {
 		{ glm::vec4(0.0f,-48.25f,-56.0f,60.5f), {1.05f, Diffuse} },
-		{ glm::vec4(3.25f,-0.75f,-12.0f,2.0f), {4.0f, ReflectRefract} },
-		{ glm::vec4(-3.5f,-1.75f,-11.75f,1.25f), {1.4f, Diffuse} },
-		{ glm::vec4(-1.0f,4.25f,-15.25f,4.0f), {1.8f, Diffuse} }
+		{ glm::vec4(3.25f,-0.75f,-12.0f,2.0f), {0.2f, ReflectRefract} },
+		{ glm::vec4(-3.5f,-1.75f,-11.75f,1.25f), {0.18f, Diffuse} },
+		{ glm::vec4(-1.0f,4.25f,-15.25f,4.0f), {0.24f, Diffuse} }
 	};
 	std::vector<Light> m_lights = {
-		{ {-20.0f,100.0f,50.0f}, {0.85f,0.85f,0.85f,1.0f} },
-		{ {20.0f,-100.0f,-50.0f}, {0.45f,0.45f,0.45f,1.0f} },
+		{ {-100.0f,100.0f,50.0f}, {0.85f,0.8f,0.82f,1.0f} },
+		{ {130.0f,-60.0f,170.0f}, {0.25f,0.25f,0.35f,1.0f} },
 	};
 	glm::vec4 m_skyColour = glm::vec4(0.4f,0.42f,0.5f,1.0f);
 
@@ -60,7 +60,9 @@ private:
 		Complete = 2,
 		Paused = 3
 	};
+	std::atomic<int> m_jobsInProgress;
 	std::atomic<int> m_traceStatus;
 	std::vector<uint8_t> m_traceResult;
-	double m_lastTraceTime;
+	std::atomic<double> m_traceStartTime;
+	std::atomic<double> m_lastTraceTime;
 };

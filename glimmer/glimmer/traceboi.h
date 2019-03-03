@@ -33,8 +33,9 @@ struct TraceParamaters
 	std::vector<SceneSphere> spheres;
 	std::vector<Light> lights;
 	glm::vec4 skyColour;
-	uint32_t width;
-	uint32_t height;
+	glm::ivec2 imageDimensions;
+	glm::ivec2 outputOrigin;
+	glm::ivec2 outputDimensions;
 	int maxRecursions;
 };
 
