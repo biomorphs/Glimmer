@@ -30,21 +30,23 @@ glm::vec3 GeneratePrimaryRayDirection(const RenderParams& globals, glm::vec2 pix
 	return direction;
 }
 
-bool RayHitObject(const Ray& ray, const TraceParamaters& globals, float& t, glm::vec3& hitNormal)
+bool RayHitObject(const Ray& ray, const TraceParamaters& globals, float& t, glm::vec3& hitNormal, SceneMaterial& hitMaterial)
 {
 	float closestT = std::numeric_limits<float>::max();
+	SceneMaterial closestMaterial;
 	glm::vec3 closestNormal(0.0f);
 	glm::vec3 normal;
 	bool hit = false;
 
 	for (auto s : globals.spheres)
 	{
-		if (Geometry::RaySphereIntersect(ray, s, t, normal))
+		if (Geometry::RaySphereIntersect(ray, s.m_sphere, t, normal))
 		{
 			if (t < closestT)
 			{
 				closestNormal = normal;
 				closestT = t;
+				closestMaterial = s.m_material;
 				hit = true;
 			}
 		}
@@ -54,6 +56,7 @@ bool RayHitObject(const Ray& ray, const TraceParamaters& globals, float& t, glm:
 	{
 		t = closestT;
 		hitNormal = closestNormal;
+		hitMaterial = closestMaterial;
 	}
 	return hit;
 }
@@ -62,7 +65,8 @@ glm::vec4 CastRay(const Ray& ray, const TraceParamaters& globals, int depth)
 {
 	float hitT = 0.0f;
 	glm::vec3 hitNormal(0.0f);
-	bool rayHitObject = RayHitObject(ray, globals, hitT, hitNormal);
+	SceneMaterial hitMaterial;
+	bool rayHitObject = RayHitObject(ray, globals, hitT, hitNormal, hitMaterial);
 
 	if (rayHitObject)
 	{
@@ -77,16 +81,19 @@ glm::vec4 CastRay(const Ray& ray, const TraceParamaters& globals, int depth)
 			Ray pointToLightRay = { hitPosition, pointToLight };
 			float shadowT = 0.0f;
 			glm::vec3 shadowNormal(0.0f);
-			bool inShadow = RayHitObject(pointToLightRay, globals, shadowT, shadowNormal);
-			glm::vec4 shadow = glm::vec4(1.0f) * (inShadow ? 0.5f : 1.0f);
-			accumColour += glm::clamp(nDotL * l.m_diffuse * shadow, { 0.0f }, { 1.0f });
+			SceneMaterial shadowMaterial;
+			bool inShadow = RayHitObject(pointToLightRay, globals, shadowT, shadowNormal, shadowMaterial);
+			if (!inShadow)
+			{
+				accumColour += glm::clamp(nDotL * l.m_diffuse, { 0.0f }, { 1.0f });
+			}
 		}
 		
 		if (depth < globals.maxRecursions)
 		{
 			Ray reflection = { hitPosition, glm::reflect(ray.m_direction, hitNormal) };
 			glm::vec4 reflectionColour = CastRay(reflection, globals, depth + 1);
-			float reflectionFactor = glm::dot(reflection.m_direction, hitNormal) * 0.4f;
+			float reflectionFactor = glm::dot(reflection.m_direction, hitNormal) * hitMaterial.m_reflectFactor;
 			return glm::clamp(accumColour * (1.0f - reflectionFactor) + (reflectionColour * reflectionFactor), { 0.0f }, { 1.0f });
 		}
 		else

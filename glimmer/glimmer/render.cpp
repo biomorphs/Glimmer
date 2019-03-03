@@ -67,7 +67,7 @@ void MyRender::UpdateScene()
 	{
 		char label[256] = { '\0' };
 		sprintf_s(label, "Sphere %d", s);
-		m_debugGui->DragVector(label, m_spheres[s].m_posAndRadius, 0.25f);
+		m_debugGui->DragVector(label, m_spheres[s].m_sphere.m_posAndRadius, 0.25f);
 	}
 
 	for (int l = 0; l < m_lights.size(); ++l)
@@ -150,7 +150,7 @@ bool MyRender::Tick()
 	int traceReady = Trace::Ready;
 	if (m_traceStatus.compare_exchange_strong(traceReady, Trace::InProgress))
 	{
-		TraceParamaters params = { m_traceResult, m_spheres, m_lights, m_skyColour, c_outputSizeX, c_outputSizeY, 3 };
+		TraceParamaters params = { m_traceResult, m_spheres, m_lights, m_skyColour, c_outputSizeX, c_outputSizeY, 4 };
 		m_jobSystem->PushJob([=]()
 		{
 			Core::ScopedTimer timeThis(m_lastTraceTime);

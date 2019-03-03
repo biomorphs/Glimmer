@@ -9,10 +9,21 @@ struct Light
 	glm::vec4 m_diffuse;
 };
 
+struct SceneMaterial
+{
+	float m_reflectFactor;
+};
+
+struct SceneSphere
+{
+	Sphere m_sphere;
+	SceneMaterial m_material;
+};
+
 struct TraceParamaters
 {
 	std::vector<uint8_t>& outputBuffer;
-	std::vector<Sphere> spheres;
+	std::vector<SceneSphere> spheres;
 	std::vector<Light> lights;
 	glm::vec4 skyColour;
 	uint32_t width;
