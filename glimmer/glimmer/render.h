@@ -47,4 +47,5 @@ private:
 	};
 	std::atomic<int> m_traceStatus;
 	std::vector<uint8_t> m_traceResult;
+	double m_lastTraceTime;
 };

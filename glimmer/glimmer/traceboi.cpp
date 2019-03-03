@@ -26,8 +26,7 @@ bool RayPlaneIntersect(const Ray& r, const Plane& p, float &t, glm::vec3& normal
 {
 	float denom = glm::dot(p.m_normal, r.m_direction);
 	if (denom > 1e-6f) {
-		glm::vec3 p0l0 = p.m_point - r.m_origin;
-		t = glm::dot(p0l0, p.m_normal) / denom;
+		t = glm::dot(p.m_point - r.m_origin, p.m_normal) / denom;
 		normal = p.m_normal;
 		return (t >= 0);
 	}
@@ -120,7 +119,7 @@ void TraceMeSomethingNice(const TraceParamaters& parameters)
 	globals.m_scale = tan(glm::radians(globals.m_fov * 0.5f));
 	globals.m_imageDimensions = { width, height };
 	globals.m_aspectRatio = GetAspectRatio(globals);
-	globals.m_cameraToWorld = glm::lookAt(glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,-1.0f), glm::vec3(0.0f,1.0f,0.0f));
+	globals.m_cameraToWorld = glm::lookAt(glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,1.0f), glm::vec3(0.0f,1.0f,0.0f));
 	glm::vec3 origin = (glm::vec3)(globals.m_cameraToWorld * glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
 
 	for (uint32_t y = 0; y < height; ++y)
@@ -129,7 +128,7 @@ void TraceMeSomethingNice(const TraceParamaters& parameters)
 		{
 			Ray primaryRay;
 			primaryRay.m_origin = origin;
-			primaryRay.m_direction = GeneratePrimaryRayDirection(globals, { (float)x, height - (float)y });
+			primaryRay.m_direction = GeneratePrimaryRayDirection(globals, { (float)x, (float)y });
 			glm::vec4 outColour = CastRay(primaryRay, parameters);
 			*outBuffer++ = (uint8_t)(outColour.r * 255.0f);
 			*outBuffer++ = (uint8_t)(outColour.g * 255.0f);

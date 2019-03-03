@@ -18,7 +18,7 @@ MyRender::MyRender(int windowResX, int windowResY)
 	, m_debugGui(nullptr)
 	, m_jobSystem(nullptr)
 	, m_traceStatus(Trace::Ready)
-
+	, m_lastTraceTime(0.0f)
 {
 	m_traceResult.resize(c_outputSizeX * c_outputSizeY * 4);
 }
@@ -63,12 +63,15 @@ bool MyRender::PostInit()
 
 bool MyRender::RenderFrame()
 {
+	char text[256] = { '\0' };
+	sprintf_s(text, "Raytrace time: %fs", m_lastTraceTime);
+	m_debugGui->Text(text);
+
 	if (m_outputTexture)
 	{
 		m_debugGui->Image(*m_outputTexture, { c_outputSizeX, c_outputSizeY });
 	}
 
-	char text[256] = { '\0' };
 	char* statusTxt = nullptr;
 	switch (m_traceStatus)
 	{
@@ -107,13 +110,13 @@ bool MyRender::RenderFrame()
 bool MyRender::Tick()
 {
 	static std::vector<Sphere> spheres = {
-		{ glm::vec4(0.0f,0.0f,-10.0f,1.0f)},
-		{ glm::vec4(3.0f,0.0f,-10.0f,1.0f)},
-		{ glm::vec4(-3.0f,0.0f,-10.0f,1.0f)},
-		{ glm::vec4(0.0f,3.0f,-10.0f,1.0f)}
+		{ glm::vec4(0.0f,0.0f,10.0f,1.0f)},
+		{ glm::vec4(3.0f,0.0f,10.0f,1.0f)},
+		{ glm::vec4(-3.0f,0.0f,10.0f,1.0f)},
+		{ glm::vec4(0.0f,3.0f,10.0f,1.0f)}
 	};
 	static std::vector<Plane> planes = {
-		{{0.0f,1.0f,0.0f},{0.0f,0.0f,0.0f}}
+		{{1.0f,0.0f,0.0f},{0.0f,0.0f,0.0f}}
 	};
 
 	for (int s = 0; s < spheres.size(); ++s)
@@ -139,6 +142,7 @@ bool MyRender::Tick()
 		TraceParamaters params = { m_traceResult, spheres, planes, c_outputSizeX, c_outputSizeY };
 		m_jobSystem->PushJob([=]()
 		{
+			Core::ScopedTimer timeThis(m_lastTraceTime);
 			TraceMeSomethingNice(params);
 			m_traceStatus = Trace::Complete;
 		});
