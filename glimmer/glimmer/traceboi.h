@@ -9,9 +9,16 @@ struct Light
 	glm::vec4 m_diffuse;
 };
 
+enum MaterialType
+{
+	ReflectRefract,
+	Diffuse
+};
+
 struct SceneMaterial
 {
-	float m_reflectFactor;
+	float m_refractiveIndex;
+	MaterialType m_type;
 };
 
 struct SceneSphere

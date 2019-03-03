@@ -61,44 +61,82 @@ bool RayHitObject(const Ray& ray, const TraceParamaters& globals, float& t, glm:
 	return hit;
 }
 
+float fresnel(const glm::vec3 direction, const glm::vec3 hitnormal, const float refractiveIndex)
+{
+	float result = 0.0f;
+	float cosi = glm::clamp(glm::dot(direction, hitnormal), -1.0f, 1.0f);
+	float etai = 1, etat = refractiveIndex;
+	if (cosi > 0) { std::swap(etai, etat); }
+	// Compute sini using Snell's law
+	float sint = etai / etat * sqrtf(glm::max(0.f, 1.0f - cosi * cosi));
+	// Total internal reflection
+	if (sint >= 1) {
+		result = 1;
+	}
+	else {
+		float cost = sqrtf(glm::max(0.f, 1 - sint * sint));
+		cosi = fabsf(cosi);
+		float Rs = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost));
+		float Rp = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost));
+		result = (Rs * Rs + Rp * Rp) / 2;
+	}
+	// As a consequence of the conservation of energy, transmittance is given by:
+	// kt = 1 - kr;
+	return result;
+}
+
 glm::vec4 CastRay(const Ray& ray, const TraceParamaters& globals, int depth)
 {
+	if (depth >= globals.maxRecursions)
+	{
+		return glm::vec4(0.0f);
+	}
+
 	float hitT = 0.0f;
 	glm::vec3 hitNormal(0.0f);
 	SceneMaterial hitMaterial;
 	bool rayHitObject = RayHitObject(ray, globals, hitT, hitNormal, hitMaterial);
-
 	if (rayHitObject)
 	{
-		glm::vec4 accumColour( 0.0f );
 		auto hitPosition = ray.m_origin + ray.m_direction * hitT;
-		for (auto l : globals.lights)
+		if (hitMaterial.m_type == Diffuse)
 		{
-			auto pointToLight = glm::normalize(l.m_position - hitPosition);
-			auto nDotL = glm::dot(hitNormal, pointToLight);
-
-			// shadow
-			Ray pointToLightRay = { hitPosition, pointToLight };
-			float shadowT = 0.0f;
-			glm::vec3 shadowNormal(0.0f);
-			SceneMaterial shadowMaterial;
-			bool inShadow = RayHitObject(pointToLightRay, globals, shadowT, shadowNormal, shadowMaterial);
-			if (!inShadow)
+			glm::vec4 accumColour(0.0f);
+			for (auto l : globals.lights)
 			{
-				accumColour += glm::clamp((nDotL * l.m_diffuse), { 0.0f }, { 1.0f });
+				auto pointToLight = glm::normalize(l.m_position - hitPosition);
+				auto nDotL = glm::dot(hitNormal, pointToLight);
+
+				// shadow
+				Ray pointToLightRay = { hitPosition, pointToLight };
+				float shadowT = 0.0f;
+				glm::vec3 shadowNormal(0.0f);
+				SceneMaterial shadowMaterial;
+				bool inShadow = RayHitObject(pointToLightRay, globals, shadowT, shadowNormal, shadowMaterial);
+				accumColour += (nDotL * l.m_diffuse) * (inShadow ? 0.3f : 1.0f);
 			}
-		}
-		
-		if (depth < globals.maxRecursions && hitMaterial.m_reflectFactor > 0.0f)
-		{
-			Ray reflection = { hitPosition, glm::reflect(ray.m_direction, hitNormal) };
-			glm::vec4 reflectionColour = CastRay(reflection, globals, depth + 1);
-			float reflectionFactor = glm::dot(reflection.m_direction, hitNormal) * hitMaterial.m_reflectFactor;
-			return glm::clamp(accumColour * (1.0f - reflectionFactor) + (reflectionColour * reflectionFactor), { 0.0f }, { 1.0f });
-		}
-		else
-		{
 			return glm::clamp(accumColour, { 0.0f }, { 1.0f });
+		}
+		else if (hitMaterial.m_type == ReflectRefract)
+		{
+			static float bias = 0.001f;
+			float frenelFactor = fresnel(ray.m_direction, hitNormal, hitMaterial.m_refractiveIndex);
+			bool outside = glm::dot(ray.m_direction, hitNormal) < 0;
+			glm::vec4 refractionColor(0.0f);
+			glm::vec3 biasVec = bias * hitNormal;
+
+			if (frenelFactor < 1.0f)	// Not total internal reflection
+			{
+				glm::vec3 refractionDir = glm::normalize(refract(ray.m_direction, hitNormal, hitMaterial.m_refractiveIndex));
+				glm::vec3 refractionOrig = outside ? hitPosition - biasVec : hitPosition + biasVec;
+				refractionColor = CastRay({ refractionOrig, refractionDir }, globals, depth + 1);
+			}
+			auto reflectionDir = glm::reflect(ray.m_direction, hitNormal);
+			auto reflectionOrigin = outside ? hitPosition + biasVec : hitPosition - biasVec;
+
+			Ray reflection = { reflectionOrigin, reflectionDir };
+			glm::vec4 reflectionColour = CastRay(reflection, globals, depth + 1);
+			return glm::clamp(reflectionColour * frenelFactor + refractionColor * (1.0f - frenelFactor), { 0.0f }, { 1.0f });
 		}
 	}
 
