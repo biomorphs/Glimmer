@@ -43,6 +43,7 @@ private:
 	};
 	std::vector<Light> m_lights = {
 		{ {-40.0f,100.0f,50.0f}, {0.85f,0.55f,0.25f,1.0f} },
+		{ {80.0f,150.0f,100.0f}, {0.45f,0.45f,0.55f,1.0f} },
 	};
 	glm::vec4 m_skyColour = glm::vec4(0.4f,0.42f,0.5f,1.0f);
 

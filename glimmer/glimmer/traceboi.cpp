@@ -85,11 +85,11 @@ glm::vec4 CastRay(const Ray& ray, const TraceParamaters& globals, int depth)
 			bool inShadow = RayHitObject(pointToLightRay, globals, shadowT, shadowNormal, shadowMaterial);
 			if (!inShadow)
 			{
-				accumColour += glm::clamp(nDotL * l.m_diffuse, { 0.0f }, { 1.0f });
+				accumColour += glm::clamp((nDotL * l.m_diffuse), { 0.0f }, { 1.0f });
 			}
 		}
 		
-		if (depth < globals.maxRecursions)
+		if (depth < globals.maxRecursions && hitMaterial.m_reflectFactor > 0.0f)
 		{
 			Ray reflection = { hitPosition, glm::reflect(ray.m_direction, hitNormal) };
 			glm::vec4 reflectionColour = CastRay(reflection, globals, depth + 1);
