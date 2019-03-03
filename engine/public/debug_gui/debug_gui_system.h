@@ -57,6 +57,7 @@ namespace DebugGui
 		void Image(Render::Texture& src, glm::vec2 size, glm::vec2 uv0 = glm::vec2(0.0f,0.0f), glm::vec2 uv1 = glm::vec2(1.0f,1.0f));
 		void GraphLines(const char* label, glm::vec2 size, GraphDataBuffer& buffer);
 		void GraphHistogram(const char* label, glm::vec2 size, GraphDataBuffer& buffer);
+		bool Checkbox(const char* text, bool* val);
 
 	private:
 		void UpdateImgGuiInputState();

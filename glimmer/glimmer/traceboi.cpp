@@ -53,14 +53,15 @@ void TraceMeSomethingNice(TraceParamaters& parameters)
 	globals.m_fov = 90.0f;
 	globals.m_imageDimensions = { width, height };
 
+	int r = rand() % 255, g = rand() % 255, b = rand() % 255;
 	for (uint32_t y = 0; y < height; ++y)
 	{
 		for (uint32_t x = 0; x < width; ++x)
 		{
 			Ray primaryRay = GeneratePrimaryRay(globals, {(float)x, (float)y});
-			*outBuffer++ = 255;
-			*outBuffer++ = 255;
-			*outBuffer++ = 255;
+			*outBuffer++ = r;
+			*outBuffer++ = g;
+			*outBuffer++ = b;
 			*outBuffer++ = 255;
 		}
 	}

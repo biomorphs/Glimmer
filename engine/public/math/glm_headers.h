@@ -12,7 +12,10 @@ Matt Hoyle
 #define GLM_FORCE_INLINE						// always inline
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES		// don't pack types, required for simd
 #define GLM_FORCE_AVX
+#ifndef NDEBUG
+#define I_DISABLED_DEBUG
 #define NDEBUG
+#endif
 
 #include <glm/glm.hpp>
 #include <glm/gtx/component_wise.hpp>
@@ -21,4 +24,6 @@ Matt Hoyle
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
+#ifdef I_DISABLED_DEBUG
 #undef NDEBUG
+#endif

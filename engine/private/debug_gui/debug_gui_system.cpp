@@ -94,6 +94,11 @@ namespace DebugGui
 		ImGui::PlotLines("", buffer.GetValues(), buffer.ValueCount(), 0, label, FLT_MAX, FLT_MAX, graphSize);
 	}
 
+	bool DebugGuiSystem::Checkbox(const char* text, bool* val)
+	{
+		return ImGui::Checkbox(text, val);
+	}
+
 	void DebugGuiSystem::GraphHistogram(const char* label, glm::vec2 size, GraphDataBuffer& buffer)
 	{
 		ImVec2 graphSize(size.x, size.y);
@@ -102,7 +107,8 @@ namespace DebugGui
 
 	void DebugGuiSystem::Image(Render::Texture& src, glm::vec2 size, glm::vec2 uv0, glm::vec2 uv1)
 	{
-		ImGui::Image(reinterpret_cast<ImTextureID>(src.GetHandle()), { size.x,size.y }, { uv0.x, uv0.y }, { uv1.x, uv1.y });
+		size_t texHandle = static_cast<size_t>(src.GetHandle());
+		ImGui::Image(reinterpret_cast<ImTextureID>(texHandle), { size.x,size.y }, { uv0.x, uv0.y }, { uv1.x, uv1.y });
 	}
 
 	bool DebugGuiSystem::Tick()
