@@ -15,10 +15,51 @@ struct Ray
 
 struct RenderParams
 {
-	float m_fov;
 	glm::vec2 m_imageDimensions;
-	glm::mat4x4 m_cameraToWorld;
+	glm::mat4 m_cameraToWorld;
+	float m_fov;
+	float m_scale;
+	float m_aspectRatio;
 };
+
+bool RaySphereIntersect(const Ray& ray, const Sphere& sphere, float &t)
+{
+	// geometric solution
+	float radius2 = sphere.m_posAndRadius.w * sphere.m_posAndRadius.w;
+	glm::vec3 l = glm::vec3(sphere.m_posAndRadius) - ray.m_origin;
+	float tca = glm::dot(l, ray.m_direction);
+	if (tca < 0) 
+	{
+		return false;
+	}
+
+	float d2 = glm::dot(l, l) - tca * tca;
+	if (d2 > radius2)
+	{
+		return false;
+	}
+
+	float thc = sqrt(radius2 - d2);
+	float t0 = tca - thc;
+	float t1 = tca + thc;
+
+	if (t0 > t1)
+	{
+		std::swap(t0, t1);
+	}
+
+	if (t0 < 0)
+	{
+		t0 = t1; // if t0 is negative, let's use t1 instead
+		if (t0 < 0)
+		{
+			return false; // both t0 and t1 are negative
+		}
+	}
+
+	t = t0;
+	return true;
+}
 
 float GetAspectRatio(const RenderParams& globals)
 {
@@ -27,42 +68,55 @@ float GetAspectRatio(const RenderParams& globals)
 		globals.m_imageDimensions.y / globals.m_imageDimensions.x;
 }
 
-Ray GeneratePrimaryRay(const RenderParams& globals, glm::vec2 pixelPos)
+glm::vec3 GeneratePrimaryRayDirection(const RenderParams& globals, glm::vec2 pixelPos)
 {
-	float aspectRatio = GetAspectRatio(globals);
-	float px = (2.0f * ((pixelPos.x + 0.5f) / globals.m_imageDimensions.x) - 1.f) * tan(globals.m_fov / 2.0f * glm::pi<float>() / 180.f) * aspectRatio;
-	float py = (1.f - 2.f * ((pixelPos.y + 0.5f) / globals.m_imageDimensions.y) * tan(globals.m_fov / 2.f * glm::pi<float>() / 180.f));
-	glm::vec3 origin = {0.0f,0.0f,0.0f};
-	glm::vec3 direction = glm::vec3(px, py, -1.0f) - origin;
-	
-	// should w be 1 or zero here?
-	glm::vec3 originWorld = glm::vec3(globals.m_cameraToWorld * glm::vec4(origin, 0.0f));
-	glm::vec3 rayPointWorld = glm::vec3(globals.m_cameraToWorld * glm::vec4( px, py, -1.0f, 0.0f ));
-	glm::vec3 worldDirection = glm::normalize(rayPointWorld - originWorld);
-
-	return { originWorld, worldDirection };
+	float x = (2.0f * (pixelPos.x + 0.5f) / (float)globals.m_imageDimensions.x - 1.0f) * globals.m_aspectRatio * globals.m_scale;
+	float y = (1.0f - 2.0f * (pixelPos.y + 0.5f) / (float)globals.m_imageDimensions.y) * globals.m_scale;
+	glm::vec3 direction = (glm::vec3)(globals.m_cameraToWorld * glm::vec4(x, y, -1, 0));
+	direction = glm::normalize(direction);
+	return direction;
 }
 
-void TraceMeSomethingNice(TraceParamaters& parameters)
+glm::vec4 CastRay(const Ray& ray, const TraceParamaters& globals)
+{
+	float t = std::numeric_limits<float>::max();
+	for(auto s : globals.spheres)
+	{
+		if (RaySphereIntersect(ray, s, t))
+		{
+			glm::vec3 hitPos = ray.m_origin + ray.m_direction * t;
+			return glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		}
+	}
+	return glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+void TraceMeSomethingNice(const TraceParamaters& parameters)
 {
 	const uint32_t width = parameters.width;
 	const uint32_t height = parameters.height;
 	uint8_t* outBuffer = parameters.outputBuffer.data();
 
 	RenderParams globals;
-	globals.m_fov = 90.0f;
+	globals.m_fov = 51.52f;
+	globals.m_scale = tan(glm::radians(globals.m_fov * 0.5f));
 	globals.m_imageDimensions = { width, height };
+	globals.m_aspectRatio = GetAspectRatio(globals);
+	globals.m_cameraToWorld = glm::lookAt(glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,-1.0f), glm::vec3(0.0f,1.0f,0.0f));
+	glm::vec3 origin = (glm::vec3)(globals.m_cameraToWorld * glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
 
-	int r = rand() % 255, g = rand() % 255, b = rand() % 255;
 	for (uint32_t y = 0; y < height; ++y)
 	{
 		for (uint32_t x = 0; x < width; ++x)
 		{
-			Ray primaryRay = GeneratePrimaryRay(globals, {(float)x, (float)y});
-			*outBuffer++ = r;
-			*outBuffer++ = g;
-			*outBuffer++ = b;
-			*outBuffer++ = 255;
+			Ray primaryRay;
+			primaryRay.m_origin = origin;
+			primaryRay.m_direction = GeneratePrimaryRayDirection(globals, { (float)x, (float)y });
+			glm::vec4 outColour = CastRay(primaryRay, parameters);
+			*outBuffer++ = (uint8_t)(outColour.r * 255.0f);
+			*outBuffer++ = (uint8_t)(outColour.g * 255.0f);
+			*outBuffer++ = (uint8_t)(outColour.b * 255.0f);
+			*outBuffer++ = (uint8_t)(outColour.a * 255.0f);
 		}
 	}
 }

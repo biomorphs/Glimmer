@@ -88,7 +88,6 @@ bool MyRender::RenderFrame()
 	sprintf_s(text, "Status: %s\n", statusTxt);
 	m_debugGui->Text(text);
 
-
 	static bool isPaused = false;
 	m_debugGui->Checkbox("Paused", &isPaused);
 	if(isPaused)
@@ -107,13 +106,29 @@ bool MyRender::RenderFrame()
 
 bool MyRender::Tick()
 {
+	static Sphere spheres[] = {
+		glm::vec4(0.0f,0.0f,-10.0f,1.0f),
+		glm::vec4(3.0f,0.0f,-10.0f,1.0f),
+		glm::vec4(-3.0f,0.0f,-10.0f,1.0f),
+		glm::vec4(0.0f,3.0f,-10.0f,1.0f)
+	};
+	const int sphereCount = sizeof(spheres) / sizeof(*spheres);
+	for (int s = 0; s < sphereCount; ++s)
+	{
+		char label[256] = { '\0' };
+		sprintf_s(label, "Sphere %d", s);
+		m_debugGui->DragVector(label, spheres[s].m_posAndRadius, 0.25f);
+	}
+
 	// If we can switch from ready->inprogress, its go time
 	int traceReady = Trace::Ready;
 	if (m_traceStatus.compare_exchange_strong(traceReady, Trace::InProgress))
 	{
-		m_jobSystem->PushJob([this]()
+		std::vector<Sphere> sphereVector;
+		sphereVector.insert(sphereVector.begin(), spheres, spheres + sphereCount);
+		TraceParamaters params = { m_traceResult, sphereVector, c_outputSizeX, c_outputSizeY };
+		m_jobSystem->PushJob([=]()
 		{
-			TraceParamaters params = { m_traceResult, c_outputSizeX, c_outputSizeY };
 			TraceMeSomethingNice(params);
 			m_traceStatus = Trace::Complete;
 		});
