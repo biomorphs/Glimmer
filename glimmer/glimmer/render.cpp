@@ -106,27 +106,37 @@ bool MyRender::RenderFrame()
 
 bool MyRender::Tick()
 {
-	static Sphere spheres[] = {
-		glm::vec4(0.0f,0.0f,-10.0f,1.0f),
-		glm::vec4(3.0f,0.0f,-10.0f,1.0f),
-		glm::vec4(-3.0f,0.0f,-10.0f,1.0f),
-		glm::vec4(0.0f,3.0f,-10.0f,1.0f)
+	static std::vector<Sphere> spheres = {
+		{ glm::vec4(0.0f,0.0f,-10.0f,1.0f)},
+		{ glm::vec4(3.0f,0.0f,-10.0f,1.0f)},
+		{ glm::vec4(-3.0f,0.0f,-10.0f,1.0f)},
+		{ glm::vec4(0.0f,3.0f,-10.0f,1.0f)}
 	};
-	const int sphereCount = sizeof(spheres) / sizeof(*spheres);
-	for (int s = 0; s < sphereCount; ++s)
+	static std::vector<Plane> planes = {
+		{{0.0f,1.0f,0.0f},{0.0f,0.0f,0.0f}}
+	};
+
+	for (int s = 0; s < spheres.size(); ++s)
 	{
 		char label[256] = { '\0' };
 		sprintf_s(label, "Sphere %d", s);
 		m_debugGui->DragVector(label, spheres[s].m_posAndRadius, 0.25f);
 	}
 
+	for (int p = 0; p < planes.size(); ++p)
+	{
+		char label[256] = { '\0' };
+		sprintf_s(label, "Plane Normal %d", p);
+		m_debugGui->DragVector(label, planes[p].m_normal, 0.1f, -1.0f, 1.0f);
+		sprintf_s(label, "Plane Pos %d", p);
+		m_debugGui->DragVector(label, planes[p].m_point, 0.25f, -100.0f, 100.0f);
+	}
+
 	// If we can switch from ready->inprogress, its go time
 	int traceReady = Trace::Ready;
 	if (m_traceStatus.compare_exchange_strong(traceReady, Trace::InProgress))
 	{
-		std::vector<Sphere> sphereVector;
-		sphereVector.insert(sphereVector.begin(), spheres, spheres + sphereCount);
-		TraceParamaters params = { m_traceResult, sphereVector, c_outputSizeX, c_outputSizeY };
+		TraceParamaters params = { m_traceResult, spheres, planes, c_outputSizeX, c_outputSizeY };
 		m_jobSystem->PushJob([=]()
 		{
 			TraceMeSomethingNice(params);

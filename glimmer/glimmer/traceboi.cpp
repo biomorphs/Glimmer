@@ -22,9 +22,21 @@ struct RenderParams
 	float m_aspectRatio;
 };
 
-bool RaySphereIntersect(const Ray& ray, const Sphere& sphere, float &t)
+bool RayPlaneIntersect(const Ray& r, const Plane& p, float &t, glm::vec3& normal)
 {
-	// geometric solution
+	float denom = glm::dot(p.m_normal, r.m_direction);
+	if (denom > 1e-6f) {
+		glm::vec3 p0l0 = p.m_point - r.m_origin;
+		t = glm::dot(p0l0, p.m_normal) / denom;
+		normal = p.m_normal;
+		return (t >= 0);
+	}
+
+	return false;
+}
+
+bool RaySphereIntersect(const Ray& ray, const Sphere& sphere, float &t, glm::vec3& normal)
+{
 	float radius2 = sphere.m_posAndRadius.w * sphere.m_posAndRadius.w;
 	glm::vec3 l = glm::vec3(sphere.m_posAndRadius) - ray.m_origin;
 	float tca = glm::dot(l, ray.m_direction);
@@ -32,32 +44,31 @@ bool RaySphereIntersect(const Ray& ray, const Sphere& sphere, float &t)
 	{
 		return false;
 	}
-
 	float d2 = glm::dot(l, l) - tca * tca;
 	if (d2 > radius2)
 	{
 		return false;
 	}
-
 	float thc = sqrt(radius2 - d2);
 	float t0 = tca - thc;
 	float t1 = tca + thc;
-
 	if (t0 > t1)
 	{
 		std::swap(t0, t1);
 	}
-
 	if (t0 < 0)
 	{
-		t0 = t1; // if t0 is negative, let's use t1 instead
+		t0 = t1; 
 		if (t0 < 0)
 		{
-			return false; // both t0 and t1 are negative
+			return false;
 		}
 	}
-
 	t = t0;
+	auto spherePos = glm::vec3(sphere.m_posAndRadius);
+	auto hitPos = ray.m_origin + ray.m_direction * t;
+	auto hitLength = glm::length(hitPos - spherePos);
+	normal = glm::normalize(hitPos - spherePos);
 	return true;
 }
 
@@ -80,12 +91,19 @@ glm::vec3 GeneratePrimaryRayDirection(const RenderParams& globals, glm::vec2 pix
 glm::vec4 CastRay(const Ray& ray, const TraceParamaters& globals)
 {
 	float t = std::numeric_limits<float>::max();
+	glm::vec3 normal;
 	for(auto s : globals.spheres)
 	{
-		if (RaySphereIntersect(ray, s, t))
+		if (RaySphereIntersect(ray, s, t, normal))
 		{
-			glm::vec3 hitPos = ray.m_origin + ray.m_direction * t;
-			return glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			return glm::vec4(normal,1.0f);
+		}
+	}
+	for (auto p : globals.planes)
+	{
+		if (RayPlaneIntersect(ray, p, t, normal))
+		{
+			return glm::vec4(normal, 1.0f);
 		}
 	}
 	return glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -111,7 +129,7 @@ void TraceMeSomethingNice(const TraceParamaters& parameters)
 		{
 			Ray primaryRay;
 			primaryRay.m_origin = origin;
-			primaryRay.m_direction = GeneratePrimaryRayDirection(globals, { (float)x, (float)y });
+			primaryRay.m_direction = GeneratePrimaryRayDirection(globals, { (float)x, height - (float)y });
 			glm::vec4 outColour = CastRay(primaryRay, parameters);
 			*outBuffer++ = (uint8_t)(outColour.r * 255.0f);
 			*outBuffer++ = (uint8_t)(outColour.g * 255.0f);
