@@ -46,6 +46,7 @@ private:
 		{ {8.0f,10.0f,-2.0f}, {0.8f,0.76f,0.0f,1.0f} },
 		{ {0.0f,-5.0f,-2.0f}, {0.2f,0.1f,0.15f,1.0f} },
 	};
+	glm::vec4 m_skyColour = glm::vec4(0.4f,0.42f,0.5f,1.0f);
 
 	std::unique_ptr<Render::Texture> m_outputTexture;
 	glm::ivec2 m_windowResolution;

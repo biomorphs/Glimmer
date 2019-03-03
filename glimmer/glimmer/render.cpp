@@ -78,6 +78,8 @@ void MyRender::UpdateScene()
 		sprintf_s(label, "Light %d Colour", l);
 		m_debugGui->DragVector(label, m_lights[l].m_diffuse, 0.05f, 0.0f, 1.0f);
 	}
+
+	m_debugGui->ColourEdit("Sky Colour", m_skyColour);
 }
 
 void MyRender::UpdateControls()
@@ -148,7 +150,7 @@ bool MyRender::Tick()
 	int traceReady = Trace::Ready;
 	if (m_traceStatus.compare_exchange_strong(traceReady, Trace::InProgress))
 	{
-		TraceParamaters params = { m_traceResult, m_spheres, m_lights, c_outputSizeX, c_outputSizeY };
+		TraceParamaters params = { m_traceResult, m_spheres, m_lights, m_skyColour, c_outputSizeX, c_outputSizeY, 3 };
 		m_jobSystem->PushJob([=]()
 		{
 			Core::ScopedTimer timeThis(m_lastTraceTime);

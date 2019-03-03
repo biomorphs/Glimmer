@@ -50,6 +50,7 @@ namespace DebugGui
 		virtual bool PostInit() override;
 		virtual bool Tick() override;
 		virtual void Shutdown() override;
+
 		void BeginWindow(bool& windowOpen, const char* windowName, glm::vec2 size=glm::vec2(-1.f));
 		void EndWindow();
 		void Text(const char* txt);
@@ -60,6 +61,7 @@ namespace DebugGui
 		bool Checkbox(const char* text, bool* val);
 		void DragVector(const char* label, glm::vec4& v, float step = 1.0f, float min = 0.0f, float max = 0.0f);
 		void DragVector(const char* label, glm::vec3& v, float step = 1.0f, float min = 0.0f, float max = 0.0f);
+		void ColourEdit(const char* label, glm::vec4& c, bool showAlpha = true);
 
 	private:
 		void UpdateImgGuiInputState();

@@ -14,6 +14,7 @@ struct TraceParamaters
 	std::vector<uint8_t>& outputBuffer;
 	std::vector<Sphere> spheres;
 	std::vector<Light> lights;
+	glm::vec4 skyColour;
 	uint32_t width;
 	uint32_t height;
 	int maxRecursions;

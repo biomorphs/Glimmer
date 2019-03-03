@@ -26,7 +26,6 @@ glm::vec3 GeneratePrimaryRayDirection(const RenderParams& globals, glm::vec2 pix
 	float x = (2.0f * (pixelPos.x + 0.5f) / (float)globals.m_imageDimensions.x - 1.0f) * globals.m_aspectRatio * globals.m_scale;
 	float y = (1.0f - 2.0f * (pixelPos.y + 0.5f) / (float)globals.m_imageDimensions.y) * globals.m_scale;
 	glm::vec3 direction = (glm::vec3)(globals.m_cameraToWorld * glm::vec4(x, y, -1, 0));
-	//direction = glm::fastNormalize(direction); 
 	direction = glm::normalize(direction);
 	return direction;
 }
@@ -87,8 +86,8 @@ glm::vec4 CastRay(const Ray& ray, const TraceParamaters& globals, int depth)
 		{
 			Ray reflection = { hitPosition, glm::reflect(ray.m_direction, hitNormal) };
 			glm::vec4 reflectionColour = CastRay(reflection, globals, depth + 1);
-			float reflectionFactor = glm::dot(reflection.m_direction, hitNormal) * 0.9f;
-			return glm::clamp(accumColour + reflectionColour * reflectionFactor, { 0.0f }, { 1.0f });
+			float reflectionFactor = glm::dot(reflection.m_direction, hitNormal) * 0.4f;
+			return glm::clamp(accumColour * (1.0f - reflectionFactor) + (reflectionColour * reflectionFactor), { 0.0f }, { 1.0f });
 		}
 		else
 		{
@@ -96,7 +95,7 @@ glm::vec4 CastRay(const Ray& ray, const TraceParamaters& globals, int depth)
 		}
 	}
 
-	return glm::vec4(0.0f,0.0f,0.0f,1.0f);
+	return globals.skyColour;
 }
 
 void TraceMeSomethingNice(const TraceParamaters& parameters)

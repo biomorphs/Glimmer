@@ -87,6 +87,11 @@ namespace DebugGui
 		ImGui::DragFloat3(label, glm::value_ptr(v), step, min, max);
 	}
 
+	void DebugGuiSystem::ColourEdit(const char* label, glm::vec4& c, bool showAlpha)
+	{
+		ImGui::ColorEdit4(label, glm::value_ptr(c), showAlpha);
+	}
+
 	void DebugGuiSystem::DragVector(const char* label, glm::vec4& v, float step, float min, float max)
 	{
 		ImGui::DragFloat4(label, glm::value_ptr(v), step, min, max);
