@@ -38,7 +38,6 @@ private:
 	void UpdateControls();
 	void UpdateSceneControls();
 	
-
 	Scene m_scene;
 	bool m_isPaused = false;
 

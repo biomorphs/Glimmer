@@ -12,15 +12,15 @@ const uint32_t c_outputSizeY = 768;
 void MyRender::CreateScene()
 {
 	std::vector<Sphere> spheres = {
-		{ glm::vec4(0.0f,-48.25f,-56.0f,60.5f), {1.05f, Diffuse} },
-		{ glm::vec4(3.25f,-0.75f,-12.0f,2.0f), {0.2f, Diffuse} },
-		{ glm::vec4(-3.5f,-1.75f,-11.75f,1.25f), {0.18f, Diffuse} },
-		{ glm::vec4(-1.0f,4.25f,-15.25f,4.0f), {0.45f, Diffuse} }
+		{ glm::vec4(0.0f,-100.25f,-150.0f,100.5f), {1.05f, Diffuse} },
+		{ glm::vec4(3.25f,-0.75f,-16.25f,2.0f), {0.2f, Diffuse} },
+		{ glm::vec4(-3.5f,-1.75f,-15.5f,1.25f), {0.18f, Diffuse} },
+		{ glm::vec4(-1.0f,4.25f,-20.25f,4.0f), {0.45f, Diffuse} }
 	};
 
 	std::vector<Light> lights = {
-		{ {-100.0f,100.0f,50.0f}, {0.85f,0.8f,0.82f,1.0f} },
-		{ {130.0f,-60.0f,170.0f}, {0.25f,0.25f,0.35f,1.0f} },
+		{ {-100.0f,35.0f,50.0f}, {0.75f,0.0f,0.0f,1.0f} },
+		{ {177.25,131.0f,250.0f}, {0.25f,0.15f,0.65f,1.0f} },
 	};
 
 	glm::vec4 skyColour = glm::vec4(0.4f, 0.42f, 0.5f, 1.0f);
@@ -77,6 +77,11 @@ bool MyRender::PostInit()
 	return true;
 }
 
+float frand(float min, float max)
+{
+	return min + (rand() / (float)RAND_MAX) * fabs(max - min);
+}
+
 void MyRender::UpdateSceneControls()
 {
 	static bool s_controlsOpen = true;
@@ -90,6 +95,14 @@ void MyRender::UpdateSceneControls()
 		sprintf_s(label, "Sphere Material %d", s);
 		m_debugGui->DragFloat(label, m_scene.spheres[s].m_material.m_refractiveIndex, 0.01f, -1.0f, 10.0f);
 	}
+	if (m_debugGui->Button("Add Sphere"))
+	{
+		m_scene.spheres.push_back({
+			glm::vec4(frand(-10.0f,10.0f), frand(0.0f,10.0f), frand(-50.0f,-10.0f), frand(1.0, 8.0f)), {1.05f, Diffuse}
+		});
+	}
+
+	m_debugGui->Separator();
 	for (int l = 0; l < m_scene.lights.size(); ++l)
 	{
 		char label[256] = { '\0' };
@@ -99,6 +112,13 @@ void MyRender::UpdateSceneControls()
 		m_debugGui->DragVector(label, m_scene.lights[l].m_diffuse, 0.05f, 0.0f, 1.0f);
 	}
 	m_debugGui->ColourEdit("Sky Colour", m_scene.skyColour);
+	if (m_debugGui->Button("Add Light"))
+	{
+		m_scene.lights.push_back({
+			{frand(-50.0f,50.0f),frand(20.0f,500.0f), frand(-500.0f,500.0f)},
+			{frand(0.0f,1.0f), frand(0.0f,1.0f), frand(0.0f,1.0f), 1.0f}
+			});
+	}
 
 	m_debugGui->EndWindow();
 }
