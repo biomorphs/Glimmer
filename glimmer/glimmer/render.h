@@ -39,7 +39,7 @@ private:
 		{ glm::vec4(0.0f,-48.25f,-56.0f,60.5f), {1.05f, Diffuse} },
 		{ glm::vec4(3.25f,-0.75f,-12.0f,2.0f), {0.2f, ReflectRefract} },
 		{ glm::vec4(-3.5f,-1.75f,-11.75f,1.25f), {0.18f, Diffuse} },
-		{ glm::vec4(-1.0f,4.25f,-15.25f,4.0f), {0.24f, Diffuse} }
+		{ glm::vec4(-1.0f,4.25f,-15.25f,4.0f), {0.45f, ReflectRefract} }
 	};
 	std::vector<Light> m_lights = {
 		{ {-100.0f,100.0f,50.0f}, {0.85f,0.8f,0.82f,1.0f} },

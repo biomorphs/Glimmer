@@ -9,8 +9,8 @@
 #include "traceboi.h"
 #include <vector>
 
-const uint32_t c_outputSizeX = 512;
-const uint32_t c_outputSizeY = 512;
+const uint32_t c_outputSizeX = 768;
+const uint32_t c_outputSizeY = 768;
 
 MyRender::MyRender(int windowResX, int windowResY)
 	: m_windowResolution(windowResX, windowResY)

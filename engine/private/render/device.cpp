@@ -21,8 +21,8 @@ namespace Render
 		SDE_RENDER_ASSERT(windowHandle);
 
 		// Request opengl 3.0 context.
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 
 		// Always doublebuffer + 24 bit depth
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
