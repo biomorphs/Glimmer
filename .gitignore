@@ -35,3 +35,4 @@ glimmer/temp/
 glimmer/bin/
 .vs/
 *.bmp
+*.vspx

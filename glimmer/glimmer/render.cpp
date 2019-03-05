@@ -1,26 +1,37 @@
 #include "render.h"
 #include "core/system_enumerator.h"
-#include "render/texture.h"
-#include "render/texture_source.h"
 #include "debug_gui/debug_gui_system.h"
 #include "sde/render_system.h"
 #include "sde/debug_render.h"
-#include "sde/job_system.h"
 #include "traceboi.h"
 #include <vector>
 
 const uint32_t c_outputSizeX = 768;
 const uint32_t c_outputSizeY = 768;
 
+void MyRender::CreateScene()
+{
+	std::vector<Sphere> spheres = {
+		{ glm::vec4(0.0f,-48.25f,-56.0f,60.5f), {1.05f, Diffuse} },
+		{ glm::vec4(3.25f,-0.75f,-12.0f,2.0f), {0.2f, Diffuse} },
+		{ glm::vec4(-3.5f,-1.75f,-11.75f,1.25f), {0.18f, Diffuse} },
+		{ glm::vec4(-1.0f,4.25f,-15.25f,4.0f), {0.45f, Diffuse} }
+	};
+
+	std::vector<Light> lights = {
+		{ {-100.0f,100.0f,50.0f}, {0.85f,0.8f,0.82f,1.0f} },
+		{ {130.0f,-60.0f,170.0f}, {0.25f,0.25f,0.35f,1.0f} },
+	};
+
+	glm::vec4 skyColour = glm::vec4(0.4f, 0.42f, 0.5f, 1.0f);
+
+	m_scene = { spheres, lights, skyColour };
+}
+
 MyRender::MyRender(int windowResX, int windowResY)
 	: m_windowResolution(windowResX, windowResY)
-	, m_forwardPassId(-1)
 	, m_debugGui(nullptr)
-	, m_jobSystem(nullptr)
-	, m_traceStatus(Trace::Ready)
-	, m_jobsInProgress(0)
 {
-	m_traceResult.resize(c_outputSizeX * c_outputSizeY * 4);
 }
 
 MyRender::~MyRender()
@@ -32,7 +43,7 @@ bool MyRender::PreInit(Core::ISystemEnumerator& systemEnumerator)
 {
 	auto inputSystem = (Input::InputSystem*)systemEnumerator.GetSystem("Input");
 	auto renderSystem = (SDE::RenderSystem*)systemEnumerator.GetSystem("Render");
-	m_jobSystem = (SDE::JobSystem*)systemEnumerator.GetSystem("Jobs");
+	auto jobSystem = (SDE::JobSystem*)systemEnumerator.GetSystem("Jobs");
 	m_debugGui = (DebugGui::DebugGuiSystem*)systemEnumerator.GetSystem("DebugGui");
 
 	// Pass init params to renderer
@@ -40,48 +51,56 @@ bool MyRender::PreInit(Core::ISystemEnumerator& systemEnumerator)
 	renderSystem->SetInitialiseParams(renderParams);
 
 	// Set up render passes
-	m_forwardPassId = renderSystem->CreatePass("Forward");
-
 	uint32_t guiPassId = renderSystem->CreatePass("DebugGui");
 	renderSystem->GetPass(guiPassId).GetRenderState().m_blendingEnabled = true;
 	renderSystem->GetPass(guiPassId).GetRenderState().m_depthTestEnabled = false;
 	renderSystem->GetPass(guiPassId).GetRenderState().m_backfaceCullEnabled = false;
+	renderSystem->SetClearColour(glm::vec4(0.0f,0.0f,0.0f,1.0f));
 
-	// Set up debug gui data
+	// Set up debug gui
 	DebugGui::DebugGuiSystem::InitialisationParams guiParams(renderSystem, inputSystem, guiPassId);
 	m_debugGui->SetInitialiseParams(guiParams);
 
-	renderSystem->SetClearColour(glm::vec4(0.14f, 0.23f, 0.45f, 1.0f));
+	// Set up cpu ray tracer
+	CpuRaytracer::Parameters params;
+	params.m_jobCount = 8;
+	params.m_jobSystem = jobSystem;
+	params.m_image.m_dimensions = { c_outputSizeX, c_outputSizeY };
+	m_cpuTracer = std::make_unique<CpuRaytracer>(params);
 
 	return true;
 }
 
 bool MyRender::PostInit()
 {
+	CreateScene();
 	return true;
 }
 
-void MyRender::UpdateScene()
+void MyRender::UpdateSceneControls()
 {
-	for (int s = 0; s < m_spheres.size(); ++s)
+	static bool s_controlsOpen = true;
+	m_debugGui->BeginWindow(s_controlsOpen, "Controls", { 512,512 });
+
+	for (int s = 0; s < m_scene.spheres.size(); ++s)
 	{
 		char label[256] = { '\0' };
 		sprintf_s(label, "Sphere %d", s);
-		m_debugGui->DragVector(label, m_spheres[s].m_sphere.m_posAndRadius, 0.25f);
+		m_debugGui->DragVector(label, m_scene.spheres[s].m_sphere.m_posAndRadius, 0.25f);
 		sprintf_s(label, "Sphere Material %d", s);
-		m_debugGui->DragFloat(label, m_spheres[s].m_material.m_refractiveIndex, 0.01f, -1.0f, 10.0f);
+		m_debugGui->DragFloat(label, m_scene.spheres[s].m_material.m_refractiveIndex, 0.01f, -1.0f, 10.0f);
 	}
-
-	for (int l = 0; l < m_lights.size(); ++l)
+	for (int l = 0; l < m_scene.lights.size(); ++l)
 	{
 		char label[256] = { '\0' };
 		sprintf_s(label, "Light %d Position", l);
-		m_debugGui->DragVector(label, m_lights[l].m_position, 0.25f);
+		m_debugGui->DragVector(label, m_scene.lights[l].m_position, 0.25f);
 		sprintf_s(label, "Light %d Colour", l);
-		m_debugGui->DragVector(label, m_lights[l].m_diffuse, 0.05f, 0.0f, 1.0f);
+		m_debugGui->DragVector(label, m_scene.lights[l].m_diffuse, 0.05f, 0.0f, 1.0f);
 	}
+	m_debugGui->ColourEdit("Sky Colour", m_scene.skyColour);
 
-	m_debugGui->ColourEdit("Sky Colour", m_skyColour);
+	m_debugGui->EndWindow();
 }
 
 void MyRender::UpdateControls()
@@ -90,58 +109,33 @@ void MyRender::UpdateControls()
 	m_debugGui->BeginWindow(s_controlsOpen, "Controls", {512,512});
 
 	char text[256] = { '\0' };
-	sprintf_s(text, "Raytrace time: %fs", m_lastTraceTime.load());
+	sprintf_s(text, "Raytrace time: %fs", m_cpuTracer->GetLastDrawTime());
 	m_debugGui->Text(text);
 
-	char* statusTxt = nullptr;
-	switch (m_traceStatus)
-	{
-	case Ready:
-		statusTxt = (char*)"Ready";
-		break;
-	case InProgress:
-		statusTxt = (char*)"In Progress";
-		break;
-	case Complete:
-		statusTxt = (char*)"Complete";
-		break;
-	case Paused:
-		statusTxt = (char*)"Paused";
-		break;
-	}
-	sprintf_s(text, "Status: %s\n", statusTxt);
+	const char* statusAsText[] = {
+		"Ready",
+		"In Progress",
+		"Complete",
+		"Paused",
+		"_unknown"
+	};
+	sprintf_s(text, "Status: %s\n", statusAsText[m_cpuTracer->GetStatus()]);
 	m_debugGui->Text(text);
 
-	static bool isPaused = false;
-	m_debugGui->Checkbox("Paused", &isPaused);
-
-	UpdateScene();
-
+	m_debugGui->Checkbox("Paused", &m_isPaused);
 	m_debugGui->EndWindow();
-
-	if (isPaused)
-	{
-		int traceReady = Trace::Ready;
-		m_traceStatus.compare_exchange_strong(traceReady, Trace::Paused);
-	}
-	else
-	{
-		int tracePaused = Trace::Paused;
-		m_traceStatus.compare_exchange_strong(tracePaused, Trace::Ready);
-	}
 }
 
 bool MyRender::RenderFrame()
-{
-	UpdateControls();
-
-	bool windowOpen = true;
-	m_debugGui->BeginWindow(windowOpen, "Output", glm::vec2(c_outputSizeX + 16, c_outputSizeY + 32));
-	if (m_outputTexture)
+{	
+	// Use imgui as a free blitter!
+	if (m_cpuTracer->GetTexture() != nullptr)
 	{
-		m_debugGui->Image(*m_outputTexture, { c_outputSizeX, c_outputSizeY });
+		bool stayOpen = true;
+		m_debugGui->BeginWindow(stayOpen, "Cpu Output", glm::vec2(c_outputSizeX + 16, c_outputSizeY + 32));
+		m_debugGui->Image(*m_cpuTracer->GetTexture(), { c_outputSizeX, c_outputSizeY });
+		m_debugGui->EndWindow();
 	}
-	m_debugGui->EndWindow();
 
 	return true;
 }
@@ -150,59 +144,20 @@ bool MyRender::Tick()
 {
 	Core::Timer jobTimer;
 
-	int c_numJobs = 4;
-	// If we can switch from ready->inprogress, its go time
-	int traceReady = Trace::Ready;
-	if (m_traceStatus.compare_exchange_strong(traceReady, Trace::InProgress))
-	{
-		m_jobsInProgress = c_numJobs;
-		m_traceStartTime = jobTimer.GetSeconds();
-		for (int j = 0; j < c_numJobs; ++j)
-		{
-			// split the image vertically
-			glm::ivec2 origin(0, j * (c_outputSizeY / c_numJobs));
-			glm::ivec2 dimensions(c_outputSizeX, c_outputSizeX / c_numJobs);
-			TraceParamaters params = { m_traceResult, m_spheres, m_lights, m_skyColour, {c_outputSizeX, c_outputSizeY}, origin, dimensions, 8 };
-			m_jobSystem->PushJob([=]()
-			{
-				TraceMeSomethingNice(params);
-				if (--m_jobsInProgress <= 0)
-				{
-					m_lastTraceTime = jobTimer.GetSeconds() - m_traceStartTime;
-					m_traceStatus = Trace::Complete;
-				}
-			});
-		}
-	}
+	UpdateControls();
+	UpdateSceneControls();
 
-	int traceComplete = Trace::Complete;
-	if (m_traceStatus.compare_exchange_strong(traceComplete, Trace::Ready))
+	if (!m_isPaused)
 	{
-		// update the texture
-		std::vector<Render::TextureSource::MipDesc> mips;
-		mips.push_back({ c_outputSizeX, c_outputSizeY, 0, c_outputSizeX * c_outputSizeY * 4 * sizeof(char) });
-		Render::TextureSource textureDescriptor(c_outputSizeX, c_outputSizeY, Render::TextureSource::Format::RGBA8, mips, m_traceResult);
-		std::vector<Render::TextureSource> textureSources;
-		textureSources.push_back(textureDescriptor);
-		if (m_outputTexture == nullptr)
-		{
-			m_outputTexture = std::make_unique<Render::Texture>();
-			if (!m_outputTexture->Create(textureSources))
-			{
-				m_outputTexture = nullptr;
-				return false;
-			}
-		}
-		else
-		{
-			m_outputTexture->Update(textureSources);
-		}
+		m_cpuTracer->TryDrawScene(m_scene);
 	}
+	m_cpuTracer->Tick();
 
 	return RenderFrame();
 }
 
 void MyRender::Shutdown()
 {
-	m_outputTexture = nullptr;
+	// Shutdown the cpu tracer now as it has handles to graphics resources
+	m_cpuTracer = nullptr;
 }

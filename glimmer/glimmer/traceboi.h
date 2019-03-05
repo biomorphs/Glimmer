@@ -15,24 +15,34 @@ enum MaterialType
 	Diffuse
 };
 
-struct SceneMaterial
+struct Material
 {
 	float m_refractiveIndex;
 	MaterialType m_type;
 };
 
-struct SceneSphere
+struct Sphere
 {
-	Sphere m_sphere;
-	SceneMaterial m_material;
+	Geometry::Sphere m_sphere;
+	Material m_material;
+};
+
+struct Scene
+{
+	std::vector<Sphere> spheres;
+	std::vector<Light> lights;
+	glm::vec4 skyColour;
+};
+
+struct ImageParameters
+{
+	glm::ivec2 m_dimensions;
 };
 
 struct TraceParamaters
 {
-	std::vector<uint8_t>& outputBuffer;
-	std::vector<SceneSphere> spheres;
-	std::vector<Light> lights;
-	glm::vec4 skyColour;
+	std::vector<uint32_t>& outputBuffer;
+	Scene scene;
 	glm::ivec2 imageDimensions;
 	glm::ivec2 outputOrigin;
 	glm::ivec2 outputDimensions;

@@ -21,6 +21,8 @@ namespace Kernel
 		void Create(const char* name, TheadFunction fn);	// Start the thread instantly
 		int32_t WaitForFinish();							// Called in dtor, but can be used manually
 
+		static void Sleep(int ms);
+
 	private:
 		static int32_t ThreadFn(void *ptr);
 		TheadFunction m_function;

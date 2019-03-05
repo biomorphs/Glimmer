@@ -6,6 +6,7 @@ Matt Hoyle
 #include "thread.h"
 #include "assert.h"
 #include <SDL_thread.h>
+#include <SDL_timer.h>
 
 namespace Kernel
 {
@@ -17,6 +18,11 @@ namespace Kernel
 	Thread::~Thread()
 	{
 		WaitForFinish();
+	}
+
+	void Thread::Sleep(int ms)
+	{
+		SDL_Delay(ms);
 	}
 
 	int32_t Thread::ThreadFn(void *ptr)
