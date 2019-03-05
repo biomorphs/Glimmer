@@ -25,7 +25,8 @@ glm::vec3 GeneratePrimaryRayDirection(const RenderParams& globals, glm::vec2 pix
 {
 	float x = (2.0f * (pixelPos.x + 0.5f) / (float)globals.m_imageDimensions.x - 1.0f) * globals.m_aspectRatio * globals.m_scale;
 	float y = (1.0f - 2.0f * (pixelPos.y + 0.5f) / (float)globals.m_imageDimensions.y) * globals.m_scale;
-	glm::vec3 direction = (glm::vec3)(globals.m_cameraToWorld * glm::vec4(x, y, -1, 0));
+	//glm::vec3 direction = (glm::vec3)(globals.m_cameraToWorld * glm::vec4(x, y, -1, 0));
+	glm::vec3 direction = (glm::mat3x3)globals.m_cameraToWorld * glm::vec3(x, y, -1);
 	direction = glm::normalize(direction);
 	return direction;
 }
@@ -89,7 +90,7 @@ glm::vec4 CastRay(const Geometry::Ray& ray, const TraceParamaters& globals, int 
 {
 	if (depth >= globals.maxRecursions)
 	{
-		return glm::vec4(0.0f);
+		return globals.scene.skyColour;
 	}
 
 	float hitT = 0.0f;
@@ -102,6 +103,8 @@ glm::vec4 CastRay(const Geometry::Ray& ray, const TraceParamaters& globals, int 
 		auto hitPosition = ray.m_origin + ray.m_direction * hitT;
 		if (hitMaterial.m_type == Diffuse)
 		{
+			glm::vec3 diffuse(0.0f);
+			glm::vec3 specular(0.0f);
 			for (auto l : globals.scene.lights)
 			{
 				auto pointToLight = glm::normalize(l.m_position - hitPosition);
@@ -113,11 +116,17 @@ glm::vec4 CastRay(const Geometry::Ray& ray, const TraceParamaters& globals, int 
 				glm::vec3 shadowNormal(0.0f);
 				Material shadowMaterial;
 				bool inShadow = RayHitObject(pointToLightRay, globals, shadowT, shadowNormal, shadowMaterial);
-				outColour += (nDotL * l.m_diffuse) * (inShadow ? 0.0f : 1.0f);
+				glm::vec3 shadow(inShadow ? 0.0f : 1.0f);
+				diffuse += (nDotL * l.m_diffuse) * shadow;
+
+				//specular
+				glm::vec3 idealReflection = glm::reflect(pointToLight, hitNormal);
+				float specularPow = glm::pow(glm::max(0.0f, glm::dot(idealReflection, ray.m_direction)), 10.0f);
+				specular += shadow * l.m_diffuse * specularPow;
 			}
+			outColour = glm::vec4(diffuse + specular, 1.0f);
 		}
-		else 
-			if (hitMaterial.m_type == ReflectRefract)
+		else if (hitMaterial.m_type == ReflectRefract)
 		{
 			static float bias = 0.001f;
 			float frenelFactor = fresnel(ray.m_direction, hitNormal, hitMaterial.m_refractiveIndex);
@@ -137,7 +146,27 @@ glm::vec4 CastRay(const Geometry::Ray& ray, const TraceParamaters& globals, int 
 			glm::vec4 reflectionColour = CastRay(reflection, globals, depth + 1);
 			glm::vec4 mixed = (reflectionColour * frenelFactor) + (refractionColor * (1.0f - frenelFactor));
 			//outColour = outColour * 0.5f + glm::clamp(mixed, 0.0f, 1.0f) * 0.5f;
-			outColour = glm::clamp(mixed, 0.0f, 1.0f);
+
+			glm::vec3 specular(0.0f);
+			for (auto l : globals.scene.lights)
+			{
+				auto pointToLight = glm::normalize(l.m_position - hitPosition);
+				auto nDotL = glm::dot(hitNormal, pointToLight);
+
+				// shadow
+				Geometry::Ray pointToLightRay = { hitPosition, pointToLight };
+				float shadowT = 0.0f;
+				glm::vec3 shadowNormal(0.0f);
+				Material shadowMaterial;
+				bool inShadow = RayHitObject(pointToLightRay, globals, shadowT, shadowNormal, shadowMaterial);
+				glm::vec3 shadow(inShadow ? 0.0f : 1.0f);
+
+				glm::vec3 idealReflection = glm::reflect(pointToLight, hitNormal);
+				float specularPow = glm::pow(glm::max(0.0f, glm::dot(idealReflection, ray.m_direction)), 10.0f);
+				specular += shadow * l.m_diffuse * specularPow;
+			}
+
+			outColour = mixed + glm::vec4(specular,1.0f);
 		}
 	}
 	else
@@ -154,12 +183,13 @@ void TraceMeSomethingNice(const TraceParamaters& parameters)
 	const glm::ivec2 imageMax = parameters.outputOrigin + parameters.outputDimensions;
 
 	RenderParams globals;
-	globals.m_fov = 51.52f;
+	globals.m_fov = parameters.camera.FOV();
 	globals.m_scale = tan(glm::radians(globals.m_fov * 0.5f));
 	globals.m_imageDimensions = parameters.imageDimensions;
 	globals.m_aspectRatio = GetAspectRatio(globals);
-	globals.m_cameraToWorld = glm::lookAt(glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,-1.0f), glm::vec3(0.0f,1.0f,0.0f));
-	glm::vec3 origin = (glm::vec3)(globals.m_cameraToWorld * glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+	globals.m_cameraToWorld = glm::inverse(parameters.camera.ViewMatrix());
+	//glm::vec3 origin = parameters.camera.Position();
+	glm::vec3 origin = (glm::vec3)(globals.m_cameraToWorld * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 	globals.m_maxRecursions = parameters.maxRecursions;
 
 	for (int y = imageMin.y; y < imageMax.y; ++y)

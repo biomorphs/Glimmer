@@ -4,6 +4,7 @@
 #include "core/timer.h"
 #include "render/texture.h"
 #include "render/texture_source.h"
+#include "render/camera.h"
 #include "sde/job_system.h"
 
 CpuRaytracer::CpuRaytracer(const Parameters& params)
@@ -29,18 +30,18 @@ Render::Texture* CpuRaytracer::GetTexture()
 	return m_texture.get();
 }
 
-bool CpuRaytracer::TryDrawScene(Scene& scene)
+bool CpuRaytracer::TryDrawScene(Scene& scene, Render::Camera& camera)
 {
 	int traceReady = Status::Ready;
 	if (m_traceStatus.compare_exchange_strong(traceReady, Status::InProgress))
 	{
-		SubmitRenderJobs(scene);
+		SubmitRenderJobs(scene, camera);
 		return true;
 	}
 	return false;
 }
 
-void CpuRaytracer::SubmitRenderJobs(Scene& scene)
+void CpuRaytracer::SubmitRenderJobs(Scene& scene, Render::Camera& camera)
 {
 	SDE_ASSERT(m_parameters.m_image.m_dimensions.y % m_parameters.m_jobCount == 0);
 	SDE_ASSERT(m_traceStatus == Status::InProgress);
@@ -56,7 +57,7 @@ void CpuRaytracer::SubmitRenderJobs(Scene& scene)
 		// split the image into horizontal strips 
 		glm::ivec2 origin(0, j * rowsPerJob);
 		glm::ivec2 dimensions(m_parameters.m_image.m_dimensions.x, rowsPerJob);
-		TraceParamaters params = { m_rawOutput, scene, imageDimensions, origin, dimensions, 8 };
+		TraceParamaters params = { m_rawOutput, scene, camera, imageDimensions, origin, dimensions, m_parameters.m_maxRecursion };
 		m_parameters.m_jobSystem->PushJob([=]()
 		{
 			TraceMeSomethingNice(params);

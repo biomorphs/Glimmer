@@ -1,12 +1,13 @@
 #pragma once
 #include <vector>
+#include "render/camera.h"
 #include "math/glm_headers.h"
 #include "geometry.h"
 
 struct Light
 {
 	glm::vec3 m_position;
-	glm::vec4 m_diffuse;
+	glm::vec3 m_diffuse;
 };
 
 enum MaterialType
@@ -43,6 +44,7 @@ struct TraceParamaters
 {
 	std::vector<uint32_t>& outputBuffer;
 	Scene scene;
+	Render::Camera camera;
 	glm::ivec2 imageDimensions;
 	glm::ivec2 outputOrigin;
 	glm::ivec2 outputDimensions;

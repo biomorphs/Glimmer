@@ -31,6 +31,7 @@ namespace Render
 		inline const glm::mat4& ProjectionMatrix() const	{ return m_projectionMatrix; }
 		inline float NearPlane() const						{ return m_nearPlane; }
 		inline float FarPlane() const						{ return m_farPlane; }
+		inline float FOV() const							{ return m_fov; }
 
 	private:
 		void RebuildViewMatrix();

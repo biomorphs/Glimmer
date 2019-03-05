@@ -1,4 +1,5 @@
 #include "render.h"
+#include "kernel/time.h"
 #include "core/system_enumerator.h"
 #include "debug_gui/debug_gui_system.h"
 #include "sde/render_system.h"
@@ -9,29 +10,50 @@
 const uint32_t c_outputSizeX = 768;
 const uint32_t c_outputSizeY = 768;
 
+float frand(float min, float max)
+{
+	return min + (rand() / (float)RAND_MAX) * fabs(max - min);
+}
+
 void MyRender::CreateScene()
 {
-	std::vector<Sphere> spheres = {
-		{ glm::vec4(0.0f,-100.25f,-150.0f,100.5f), {1.05f, Diffuse} },
-		{ glm::vec4(3.25f,-0.75f,-16.25f,2.0f), {0.2f, Diffuse} },
-		{ glm::vec4(-3.5f,-1.75f,-15.5f,1.25f), {0.18f, Diffuse} },
-		{ glm::vec4(-1.0f,4.25f,-20.25f,4.0f), {0.45f, Diffuse} }
-	};
+	for (int i = 0; i < 10; ++i)
+	{
+		m_scene.spheres.push_back({
+			glm::vec4(frand(-50.0f,50.0f), frand(0.0f,50.0f), frand(0.0f,50.0f), frand(2.0, 20.0f)), {0.1f, Diffuse}
+			});
+	}
 
-	std::vector<Light> lights = {
-		{ {-100.0f,35.0f,50.0f}, {0.75f,0.0f,0.0f,1.0f} },
-		{ {177.25,131.0f,250.0f}, {0.25f,0.15f,0.65f,1.0f} },
-	};
+	for (int i = 0; i < 5; ++i)
+	{
+		m_scene.lights.push_back({
+			{frand(-250.0f,250.0f),frand(50.0f,500.0f), frand(-250.0f,250.0f)},
+			{frand(0.0f,0.5f), frand(0.0f,0.5f), frand(0.0f,0.5f)}
+			});
+	}
 
-	glm::vec4 skyColour = glm::vec4(0.4f, 0.42f, 0.5f, 1.0f);
+	m_scene.spheres.push_back({
+		glm::vec4(-35.0f,82.0f,60.0f,60.0f), {0.01f, ReflectRefract}
+	});
 
-	m_scene = { spheres, lights, skyColour };
+	m_scene.spheres.push_back({
+		glm::vec4(62.0f,73.0f,41.0f,26.0f), {0.01f, ReflectRefract}
+		});
+
+	m_scene.skyColour = glm::vec4(0.35f, 0.42f, 0.6f, 1.0f);
+}
+
+void MyRender::SetupCamera()
+{
+	m_camera.SetFOVAndAspectRatio(51.52f, (float)c_outputSizeX / (float)c_outputSizeY);
+	m_camera.LookAt({ 0.0f, 50.0f, -200.0f }, { 0.0f, 50.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
 }
 
 MyRender::MyRender(int windowResX, int windowResY)
 	: m_windowResolution(windowResX, windowResY)
 	, m_debugGui(nullptr)
 {
+	srand((uint32_t)Kernel::Time::HighPerformanceCounterTicks());
 }
 
 MyRender::~MyRender()
@@ -55,7 +77,7 @@ bool MyRender::PreInit(Core::ISystemEnumerator& systemEnumerator)
 	renderSystem->GetPass(guiPassId).GetRenderState().m_blendingEnabled = true;
 	renderSystem->GetPass(guiPassId).GetRenderState().m_depthTestEnabled = false;
 	renderSystem->GetPass(guiPassId).GetRenderState().m_backfaceCullEnabled = false;
-	renderSystem->SetClearColour(glm::vec4(0.0f,0.0f,0.0f,1.0f));
+	renderSystem->SetClearColour(glm::vec4(0.8f,0.8f,0.8f,1.0f));
 
 	// Set up debug gui
 	DebugGui::DebugGuiSystem::InitialisationParams guiParams(renderSystem, inputSystem, guiPassId);
@@ -68,6 +90,8 @@ bool MyRender::PreInit(Core::ISystemEnumerator& systemEnumerator)
 	params.m_image.m_dimensions = { c_outputSizeX, c_outputSizeY };
 	m_cpuTracer = std::make_unique<CpuRaytracer>(params);
 
+	SetupCamera();
+
 	return true;
 }
 
@@ -75,11 +99,6 @@ bool MyRender::PostInit()
 {
 	CreateScene();
 	return true;
-}
-
-float frand(float min, float max)
-{
-	return min + (rand() / (float)RAND_MAX) * fabs(max - min);
 }
 
 void MyRender::UpdateSceneControls()
@@ -98,8 +117,8 @@ void MyRender::UpdateSceneControls()
 	if (m_debugGui->Button("Add Sphere"))
 	{
 		m_scene.spheres.push_back({
-			glm::vec4(frand(-10.0f,10.0f), frand(0.0f,10.0f), frand(-50.0f,-10.0f), frand(1.0, 8.0f)), {1.05f, Diffuse}
-		});
+			glm::vec4(frand(-50.0f,50.0f), frand(0.0f,50.0f), frand(0.0f,50.0f), frand(2.0, 20.0f)), {1.01f, Diffuse}
+			});
 	}
 
 	m_debugGui->Separator();
@@ -111,14 +130,23 @@ void MyRender::UpdateSceneControls()
 		sprintf_s(label, "Light %d Colour", l);
 		m_debugGui->DragVector(label, m_scene.lights[l].m_diffuse, 0.05f, 0.0f, 1.0f);
 	}
+	m_debugGui->Separator();
 	m_debugGui->ColourEdit("Sky Colour", m_scene.skyColour);
 	if (m_debugGui->Button("Add Light"))
 	{
 		m_scene.lights.push_back({
-			{frand(-50.0f,50.0f),frand(20.0f,500.0f), frand(-500.0f,500.0f)},
-			{frand(0.0f,1.0f), frand(0.0f,1.0f), frand(0.0f,1.0f), 1.0f}
+			{frand(-250.0f,250.0f),frand(50.0f,500.0f), frand(-250.0f,250.0f)},
+			{frand(0.0f,0.5f), frand(0.0f,0.5f), frand(0.0f,0.5f)}
 			});
 	}
+	m_debugGui->Separator();
+	glm::vec3 cameraPos = m_camera.Position();
+	m_debugGui->DragVector("Camera Position", cameraPos, 0.1f);
+	m_camera.SetPosition(cameraPos);
+
+	glm::vec3 cameraT = m_camera.Target();
+	m_debugGui->DragVector("Camera Target", cameraT, 0.1f);
+	m_camera.SetTarget(cameraT);
 
 	m_debugGui->EndWindow();
 }
@@ -169,7 +197,7 @@ bool MyRender::Tick()
 
 	if (!m_isPaused)
 	{
-		m_cpuTracer->TryDrawScene(m_scene);
+		m_cpuTracer->TryDrawScene(m_scene, m_camera);
 	}
 	m_cpuTracer->Tick();
 

@@ -8,6 +8,7 @@ namespace Render
 {
 	class Texture;
 	class TextureSource;
+	class Camera;
 }
 
 namespace SDE
@@ -22,7 +23,8 @@ public:
 	struct Parameters
 	{
 		int m_jobCount = 8;
-		SDE::JobSystem* m_jobSystem;
+		int m_maxRecursion = 8;
+		SDE::JobSystem* m_jobSystem = nullptr;
 		ImageParameters m_image;
 	};
 	enum Status : int
@@ -36,7 +38,7 @@ public:
 	CpuRaytracer(const Parameters& params);
 	~CpuRaytracer();
 
-	bool TryDrawScene(Scene& scene);	// Returns true if we can kick off a render
+	bool TryDrawScene(Scene& scene, Render::Camera& camera);	// Returns true if we can kick off a render
 	void Tick();						// Must be called every frame on render thread to handle job completion
 	Render::Texture* GetTexture();		// Can return null if no image drawn yet
 
@@ -44,7 +46,7 @@ public:
 	inline Status GetStatus()			{ return static_cast<Status>(m_traceStatus.load()); }
 
 private:
-	void SubmitRenderJobs(Scene& s);
+	void SubmitRenderJobs(Scene& s, Render::Camera& camera);
 	void CreateOrUpdateTexture(const std::vector<Render::TextureSource>& ts);
 	void UpdateTextureFromResult();
 

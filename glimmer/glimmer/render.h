@@ -1,6 +1,7 @@
 #pragma once
 #include "core/system.h"
 #include "math/glm_headers.h"
+#include "render/camera.h"
 #include "traceboi.h"
 #include "cpu_raytracer.h"
 #include <memory>
@@ -34,13 +35,15 @@ public:
 private:
 	bool RenderFrame();
 	void CreateScene();
+	void SetupCamera();
 
 	void UpdateControls();
 	void UpdateSceneControls();
 	
 	Scene m_scene;
-	bool m_isPaused = false;
+	Render::Camera m_camera;
 
+	bool m_isPaused = false;
 	std::unique_ptr<CpuRaytracer> m_cpuTracer;
 
 	glm::ivec2 m_windowResolution;			// 
