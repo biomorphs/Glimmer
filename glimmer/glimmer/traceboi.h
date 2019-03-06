@@ -32,7 +32,7 @@ struct Scene
 {
 	std::vector<Sphere> spheres;
 	std::vector<Light> lights;
-	glm::vec4 skyColour;
+	glm::vec3 skyColour;
 };
 
 struct ImageParameters
@@ -49,6 +49,7 @@ struct TraceParamaters
 	glm::ivec2 outputOrigin;
 	glm::ivec2 outputDimensions;
 	int maxRecursions;
+	int raycastCount = 0;
 };
 
 void TraceMeSomethingNice(const TraceParamaters& parameters);

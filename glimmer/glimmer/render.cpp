@@ -17,10 +17,10 @@ float frand(float min, float max)
 
 void MyRender::CreateScene()
 {
-	for (int i = 0; i < 10; ++i)
+	for (int i = 0; i < 20; ++i)
 	{
 		m_scene.spheres.push_back({
-			glm::vec4(frand(-50.0f,50.0f), frand(0.0f,50.0f), frand(0.0f,50.0f), frand(2.0, 20.0f)), {0.1f, Diffuse}
+			glm::vec4(frand(-100.0f,100.0f), frand(50.0f,100.0f), frand(0.0f,50.0f), frand(2.0, 10.0f)), {0.1f, Diffuse}
 			});
 	}
 
@@ -33,14 +33,14 @@ void MyRender::CreateScene()
 	}
 
 	m_scene.spheres.push_back({
-		glm::vec4(-35.0f,82.0f,60.0f,60.0f), {0.01f, ReflectRefract}
+		glm::vec4(-35.0f,82.0f,60.0f,60.0f), {0.99f, ReflectRefract}
 	});
 
 	m_scene.spheres.push_back({
-		glm::vec4(62.0f,73.0f,41.0f,26.0f), {0.01f, ReflectRefract}
+		glm::vec4(62.0f,73.0f,41.0f,26.0f), {1.01f, ReflectRefract}
 		});
 
-	m_scene.skyColour = glm::vec4(0.35f, 0.42f, 0.6f, 1.0f);
+	m_scene.skyColour = glm::vec3(0.35f, 0.42f, 0.6f);
 }
 
 void MyRender::SetupCamera()
@@ -87,6 +87,7 @@ bool MyRender::PreInit(Core::ISystemEnumerator& systemEnumerator)
 	CpuRaytracer::Parameters params;
 	params.m_jobCount = 8;
 	params.m_jobSystem = jobSystem;
+	params.m_maxRecursion = 6;
 	params.m_image.m_dimensions = { c_outputSizeX, c_outputSizeY };
 	m_cpuTracer = std::make_unique<CpuRaytracer>(params);
 
@@ -131,7 +132,9 @@ void MyRender::UpdateSceneControls()
 		m_debugGui->DragVector(label, m_scene.lights[l].m_diffuse, 0.05f, 0.0f, 1.0f);
 	}
 	m_debugGui->Separator();
-	m_debugGui->ColourEdit("Sky Colour", m_scene.skyColour);
+	glm::vec4 c = glm::vec4(m_scene.skyColour, 1.0f);
+	m_debugGui->ColourEdit("Sky Colour", c);
+	m_scene.skyColour = { c.x, c.y, c.z };
 	if (m_debugGui->Button("Add Light"))
 	{
 		m_scene.lights.push_back({

@@ -1,6 +1,7 @@
 #include "traceboi.h"
 #include <iostream>
 #include <stdint.h>
+#include <atomic>
 #include "math/glm_headers.h"
 #include "geometry.h"
 
@@ -86,18 +87,21 @@ float fresnel(const glm::vec3 direction, const glm::vec3 hitnormal, const float 
 	return result;
 }
 
-glm::vec4 CastRay(const Geometry::Ray& ray, const TraceParamaters& globals, int depth)
+std::atomic<int> m_raycastCount = 0;
+glm::vec3 CastRay(const Geometry::Ray& ray, const TraceParamaters& globals, int depth)
 {
 	if (depth >= globals.maxRecursions)
 	{
 		return globals.scene.skyColour;
 	}
 
+	++m_raycastCount;
+
 	float hitT = 0.0f;
 	glm::vec3 hitNormal(0.0f);
 	Material hitMaterial;
 	bool rayHitObject = RayHitObject(ray, globals, hitT, hitNormal, hitMaterial);
-	glm::vec4 outColour(0.0f);
+	glm::vec3 outColour(0.0f);
 	if (rayHitObject)
 	{
 		auto hitPosition = ray.m_origin + ray.m_direction * hitT;
@@ -122,30 +126,32 @@ glm::vec4 CastRay(const Geometry::Ray& ray, const TraceParamaters& globals, int 
 				//specular
 				glm::vec3 idealReflection = glm::reflect(pointToLight, hitNormal);
 				float specularPow = glm::pow(glm::max(0.0f, glm::dot(idealReflection, ray.m_direction)), 10.0f);
-				specular += shadow * l.m_diffuse * specularPow;
+				specular += /*shadow **/ l.m_diffuse * specularPow;
 			}
-			outColour = glm::vec4(diffuse + specular, 1.0f);
+			outColour = diffuse + specular;
 		}
 		else if (hitMaterial.m_type == ReflectRefract)
 		{
 			static float bias = 0.001f;
 			float frenelFactor = fresnel(ray.m_direction, hitNormal, hitMaterial.m_refractiveIndex);
-			bool outside = glm::dot(ray.m_direction, hitNormal) < 0;
-			glm::vec4 refractionColor(0.0f);
+			float dirDotNormal = glm::dot(ray.m_direction, hitNormal);
+			bool outside = dirDotNormal < 0;
 			glm::vec3 biasVec = bias * hitNormal;
 
+			auto reflectionDir = glm::reflect(ray.m_direction, hitNormal);
+			auto reflectionOrigin = outside ? hitPosition + biasVec : hitPosition - biasVec;
+			Geometry::Ray reflection = { reflectionOrigin, reflectionDir };
+			glm::vec3 reflectionColour = CastRay(reflection, globals, depth + 1);
+
+			glm::vec3 refractionColor(0.0f);
 			if (frenelFactor < 1.0f)	// Not total internal reflection
 			{
 				glm::vec3 refractionDir = (refract(ray.m_direction, hitNormal, hitMaterial.m_refractiveIndex));
 				glm::vec3 refractionOrig = outside ? hitPosition - biasVec : hitPosition + biasVec;
 				refractionColor = CastRay({ refractionOrig, refractionDir }, globals, depth + 1);
 			}
-			auto reflectionDir = glm::reflect(ray.m_direction, hitNormal);
-			auto reflectionOrigin = outside ? hitPosition + biasVec : hitPosition - biasVec;
-			Geometry::Ray reflection = { reflectionOrigin, reflectionDir };
-			glm::vec4 reflectionColour = CastRay(reflection, globals, depth + 1);
-			glm::vec4 mixed = (reflectionColour * frenelFactor) + (refractionColor * (1.0f - frenelFactor));
-			//outColour = outColour * 0.5f + glm::clamp(mixed, 0.0f, 1.0f) * 0.5f;
+			
+			glm::vec3 mixed = (reflectionColour * frenelFactor) + (refractionColor * (1.0f - frenelFactor));
 
 			glm::vec3 specular(0.0f);
 			for (auto l : globals.scene.lights)
@@ -163,10 +169,10 @@ glm::vec4 CastRay(const Geometry::Ray& ray, const TraceParamaters& globals, int 
 
 				glm::vec3 idealReflection = glm::reflect(pointToLight, hitNormal);
 				float specularPow = glm::pow(glm::max(0.0f, glm::dot(idealReflection, ray.m_direction)), 10.0f);
-				specular += shadow * l.m_diffuse * specularPow;
+				specular += /*shadow **/ l.m_diffuse * specularPow;
 			}
 
-			outColour = mixed + glm::vec4(specular,1.0f);
+			outColour = mixed + specular;
 		}
 	}
 	else
@@ -175,6 +181,13 @@ glm::vec4 CastRay(const Geometry::Ray& ray, const TraceParamaters& globals, int 
 	}
 
 	return glm::clamp(outColour, 0.0f,1.0f);
+}
+
+void WritePixel(uint32_t* buffer, glm::ivec2 dims, glm::ivec2 pos, glm::vec3 colour)
+{
+	glm::ivec3 quantised = (glm::ivec3)(colour * 255.0f);
+	size_t pixelIndex = (pos.y * dims.x) + pos.x;
+	buffer[pixelIndex] = quantised.r | quantised.g << 8 | quantised.b << 16 | 0xff000000;
 }
 
 void TraceMeSomethingNice(const TraceParamaters& parameters)
@@ -188,25 +201,18 @@ void TraceMeSomethingNice(const TraceParamaters& parameters)
 	globals.m_imageDimensions = parameters.imageDimensions;
 	globals.m_aspectRatio = GetAspectRatio(globals);
 	globals.m_cameraToWorld = glm::inverse(parameters.camera.ViewMatrix());
-	//glm::vec3 origin = parameters.camera.Position();
 	glm::vec3 origin = (glm::vec3)(globals.m_cameraToWorld * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 	globals.m_maxRecursions = parameters.maxRecursions;
 
+	Geometry::Ray primaryRay;
+	primaryRay.m_origin = origin;
 	for (int y = imageMin.y; y < imageMax.y; ++y)
 	{
 		for (int x = imageMin.x; x < imageMax.x; ++x)
 		{
-			Geometry::Ray primaryRay;
-			primaryRay.m_origin = origin;
 			primaryRay.m_direction = GeneratePrimaryRayDirection(globals, { (float)x, (float)y });
-			glm::vec4 outColour = CastRay(primaryRay, parameters, 0);
-
-			size_t pixelIndex = (y * parameters.imageDimensions.x) + x;
-			uint32_t* outPixel = parameters.outputBuffer.data() + pixelIndex;
-			*outPixel = (uint8_t)(outColour.r * 255.0f) |
-						(uint8_t)(outColour.g * 255.0f) << 8 |
-						(uint8_t)(outColour.b * 255.0f) << 16 |
-						(uint8_t)(outColour.a * 255.0f) << 24;
+			glm::vec3 outColour = CastRay(primaryRay, parameters, 0);
+			WritePixel(parameters.outputBuffer.data(), parameters.imageDimensions, { x, y }, outColour);
 		}
 	}
 }
