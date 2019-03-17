@@ -3,6 +3,25 @@
 
 namespace Geometry
 {
+	bool RayPlaneIntersect(const Ray& ray, const Plane& plane, float& tOut, glm::vec3& normal)
+	{
+		float denom = glm::dot(plane.m_normal, ray.m_direction);
+
+		// avoid divide by 0
+		if (abs(denom) > 0.0001f)
+		{
+			float t = glm::dot(plane.m_point - ray.m_origin, plane.m_normal) / denom;
+			if (t >= 0.001f && t < 10000.0f)
+			{
+				tOut = t;
+				normal = plane.m_normal;
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	bool RaySphereIntersect(const Ray& ray, const Sphere& sphere, float &t, glm::vec3& normal)
 	{
 		float radius2 = sphere.m_posAndRadius.w * sphere.m_posAndRadius.w;

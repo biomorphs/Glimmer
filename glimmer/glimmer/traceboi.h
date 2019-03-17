@@ -28,9 +28,16 @@ struct Sphere
 	Material m_material;
 };
 
+struct Plane
+{
+	Geometry::Plane m_plane;
+	Material m_material;
+};
+
 struct Scene
 {
 	std::vector<Sphere> spheres;
+	std::vector<Plane> planes;
 	std::vector<Light> lights;
 	glm::vec3 skyColour;
 };

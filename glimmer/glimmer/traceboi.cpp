@@ -54,6 +54,20 @@ bool RayHitObject(const Geometry::Ray& ray, const TraceParamaters& globals, floa
 		}
 	}
 
+	for (auto p : globals.scene.planes)
+	{
+		if (Geometry::RayPlaneIntersect(ray, p.m_plane, t, normal))
+		{
+			if (t < closestT)
+			{
+				closestNormal = normal;
+				closestT = t;
+				closestMaterial = p.m_material;
+				hit = true;
+			}
+		}
+	}	
+
 	if (hit)
 	{
 		t = closestT;
@@ -115,7 +129,8 @@ glm::vec3 CastRay(const Geometry::Ray& ray, const TraceParamaters& globals, int 
 				auto nDotL = glm::dot(hitNormal, pointToLight);
 
 				// shadow
-				Geometry::Ray pointToLightRay = { hitPosition, pointToLight };
+				float shadowBias = 0.000f;	// to avoid hitting the same object
+				Geometry::Ray pointToLightRay = { hitPosition + hitNormal * shadowBias, pointToLight };
 				float shadowT = 0.0f;
 				glm::vec3 shadowNormal(0.0f);
 				Material shadowMaterial;

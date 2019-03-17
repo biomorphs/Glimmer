@@ -7,8 +7,8 @@
 #include "traceboi.h"
 #include <vector>
 
-const uint32_t c_outputSizeX = 768;
-const uint32_t c_outputSizeY = 768;
+const uint32_t c_outputSizeX = 512;
+const uint32_t c_outputSizeY = 512;
 
 float frand(float min, float max)
 {
@@ -17,28 +17,28 @@ float frand(float min, float max)
 
 void MyRender::CreateScene()
 {
-	for (int i = 0; i < 20; ++i)
+	for (int i = 0; i < 15; ++i)
 	{
 		m_scene.spheres.push_back({
 			glm::vec4(frand(-100.0f,100.0f), frand(50.0f,100.0f), frand(0.0f,50.0f), frand(2.0, 10.0f)), {0.1f, Diffuse}
 			});
 	}
 
-	for (int i = 0; i < 5; ++i)
+	for (int i = 0; i < 8; ++i)
 	{
 		m_scene.lights.push_back({
 			{frand(-250.0f,250.0f),frand(50.0f,500.0f), frand(-250.0f,250.0f)},
-			{frand(0.0f,0.5f), frand(0.0f,0.5f), frand(0.0f,0.5f)}
+			{frand(0.0f,0.25f), frand(0.0f,0.25f), frand(0.0f,0.25f)}
 			});
 	}
 
-	m_scene.spheres.push_back({
-		glm::vec4(-35.0f,82.0f,60.0f,60.0f), {0.99f, ReflectRefract}
-	});
+	m_scene.planes.push_back({
+		{{0.0f,1.0f,0.0f},{0.0f,-100.0f,0.0f}},{0.0f,Diffuse}
+		});
 
 	m_scene.spheres.push_back({
-		glm::vec4(62.0f,73.0f,41.0f,26.0f), {1.01f, ReflectRefract}
-		});
+		glm::vec4(-35.0f,82.0f,130.0f,60.0f), {0.0f, ReflectRefract}
+	});
 
 	m_scene.skyColour = glm::vec3(0.35f, 0.42f, 0.6f);
 }
