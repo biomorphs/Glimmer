@@ -27,8 +27,10 @@ namespace SDE
 		void Shutdown();
 		sol::state& Globals() { return *m_globalState; }
 		
+		void RunScriptFromFile(const char* filename);	// can throw sol::error
+		bool RunScriptFromFile(const char* filename, std::string& errorText) noexcept;
 		void RunScript(const char* scriptSource);	// can throw sol::error
-		bool RunScript(const char* scriptSource, std::string& errorText);	// swallows exceptions
+		bool RunScript(const char* scriptSource, std::string& errorText) noexcept;
 
 	private:
 		void OpenDefaultLibraries(sol::state& state);

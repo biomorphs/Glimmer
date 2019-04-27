@@ -8,7 +8,8 @@ Matt Hoyle
 #include "render/material.h"
 #include "render/render_buffer.h"
 #include "render/mesh.h"
-#include "render/render_pass.h"
+#include "render/camera.h"
+#include "render/mesh_instance_render_pass.h"
 #include "kernel/log.h"
 #include "kernel/assert.h"
 #include "math/glm_headers.h"
@@ -250,7 +251,7 @@ namespace SDE
 		m_currentLines = 0;
 	}
 
-	void DebugRender::PushToRenderPass(Render::Camera& camera, Render::RenderPass& targetPass)
+	void DebugRender::PushToRenderPass(Render::Camera& camera, Render::MeshInstanceRenderPass& targetPass)
 	{
 		PushLinesToMesh(*m_renderMesh[m_currentWriteMesh]);
 		

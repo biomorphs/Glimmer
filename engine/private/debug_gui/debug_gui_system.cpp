@@ -12,18 +12,37 @@ Matt Hoyle
 #include "render/material.h"
 #include "render/texture_source.h"
 #include "render/texture.h"
+#include "render/mesh_instance_render_pass.h"
 #include "input/input_system.h"
+#include "core/system_enumerator.h"
 #include "kernel/log.h"
 #include <imggui\imgui.h>
 
 namespace DebugGui
 {
 	DebugGuiSystem::DebugGuiSystem()
+		: m_inputSystem(nullptr)
+		, m_renderSystem(nullptr)
 	{
 	}
 
 	DebugGuiSystem::~DebugGuiSystem()
 	{
+	}
+
+	bool DebugGuiSystem::PreInit(Core::ISystemEnumerator& systemEnumerator)
+	{
+		m_renderSystem = (SDE::RenderSystem*)systemEnumerator.GetSystem("Render");
+		m_inputSystem = (Input::InputSystem*)systemEnumerator.GetSystem("Input");
+
+		// Setup render pass
+		m_renderPass = std::make_unique<Render::MeshInstanceRenderPass>();
+		m_renderPass->GetRenderState().m_blendingEnabled = true;
+		m_renderPass->GetRenderState().m_depthTestEnabled = false;
+		m_renderPass->GetRenderState().m_backfaceCullEnabled = false;
+		m_renderSystem->AddPass(*m_renderPass);
+
+		return true;
 	}
 
 	bool DebugGuiSystem::Initialise()
@@ -33,8 +52,8 @@ namespace DebugGui
 
 	bool DebugGuiSystem::PostInit()
 	{
-		float viewportWidth = (float)m_initParams.m_renderSystem->GetViewportWidth();
-		float viewportHeight = (float)m_initParams.m_renderSystem->GetViewportHeight();
+		float viewportWidth = (float)m_renderSystem->GetViewportWidth();
+		float viewportHeight = (float)m_renderSystem->GetViewportHeight();
 
 		// Create renderer
 		m_renderer = std::make_unique<DebugGuiRender>();
@@ -61,7 +80,7 @@ namespace DebugGui
 		io.DeltaTime = thisTickTime > 0.0 ? thisTickTime : (float)(1.0f / 60.0f);
 
 		// Setup inputs
-		const auto& mouseState = m_initParams.m_inputSystem->MouseState();
+		const auto& mouseState = m_inputSystem->MouseState();
 		io.MousePos = ImVec2((float)mouseState.m_cursorX, (float)mouseState.m_cursorY);
 		io.MouseDown[0] = (mouseState.m_buttonState & Input::MouseButtons::LeftButton) != 0;
 		io.MouseDown[1] = (mouseState.m_buttonState & Input::MouseButtons::MiddleButton) != 0;
@@ -145,8 +164,7 @@ namespace DebugGui
 		m_renderer->RebuildMesh();		// Update UI mesh for last frame
 
 		// Submit last frame to renderer
-		auto& renderPass = m_initParams.m_renderSystem->GetPass(m_initParams.m_renderPassId);
-		m_renderer->SubmitToPass(renderPass);
+		m_renderer->SubmitToPass(*m_renderPass);
 
 		// Start next frame
 		UpdateImgGuiInputState();
@@ -157,20 +175,7 @@ namespace DebugGui
 
 	void DebugGuiSystem::Shutdown()
 	{
-		ImGui::Shutdown(); 
+		ImGui::Shutdown();
 		m_renderer = nullptr;
-	}
-
-	DebugGuiSystem::InitialisationParams::InitialisationParams()
-		: m_inputSystem(nullptr)
-		, m_renderSystem(nullptr)
-	{
-	}
-
-	DebugGuiSystem::InitialisationParams::InitialisationParams(SDE::RenderSystem* renderSystem, Input::InputSystem* inputSystem, uint32_t passId)
-		: m_inputSystem(inputSystem)
-		, m_renderSystem(renderSystem)
-		, m_renderPassId(passId)
-	{
 	}
 }

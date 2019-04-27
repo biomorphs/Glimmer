@@ -128,32 +128,15 @@ bool Glimmer::PreInit(Core::ISystemEnumerator& systemEnumerator)
 	m_scriptSystem = (SDE::ScriptSystem*)systemEnumerator.GetSystem("Script");
 
 	// Load config.lua, populates Config global table
-	std::string configLuaText;
-	if (Kernel::FileIO::LoadTextFromFile("config.lua", configLuaText))
+	std::string errorText;
+	if (!m_scriptSystem->RunScriptFromFile("config.lua", errorText))
 	{
-		try
-		{	
-			m_scriptSystem->RunScript(configLuaText.data());
-		}
-		catch (const sol::error& err)
-		{
-			SDE_LOG("Lua error in config.lua - %s", err.what());
-		}
-	}	
+		SDE_LOG("Lua error in config.lua - %s", errorText.data());
+	}
 
 	// Setup render parameters 
 	InitRenderSystemFromConfig(*renderSystem);
-
-	// Set up render passes
-	uint32_t guiPassId = renderSystem->CreatePass("DebugGui");
-	renderSystem->GetPass(guiPassId).GetRenderState().m_blendingEnabled = true;
-	renderSystem->GetPass(guiPassId).GetRenderState().m_depthTestEnabled = false;
-	renderSystem->GetPass(guiPassId).GetRenderState().m_backfaceCullEnabled = false;
 	renderSystem->SetClearColour(glm::vec4(0.8f,0.8f,0.8f,1.0f));
-
-	// Set up debug gui
-	DebugGui::DebugGuiSystem::InitialisationParams guiParams(renderSystem, inputSystem, guiPassId);
-	m_debugGui->SetInitialiseParams(guiParams);
 
 	// Set up cpu ray tracer
 	CpuRaytracer::Parameters params;

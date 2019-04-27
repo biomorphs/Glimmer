@@ -72,6 +72,9 @@
     <ClInclude Include="public\render\texture_asset.h">
       <Filter>public</Filter>
     </ClInclude>
+    <ClInclude Include="public\render\mesh_instance_render_pass.h">
+      <Filter>public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="private\render\window.cpp">
@@ -101,9 +104,6 @@
     <ClCompile Include="private\render\mesh_builder.cpp">
       <Filter>private</Filter>
     </ClCompile>
-    <ClCompile Include="private\render\render_pass.cpp">
-      <Filter>private</Filter>
-    </ClCompile>
     <ClCompile Include="private\render\material_asset.cpp">
       <Filter>private</Filter>
     </ClCompile>
@@ -120,6 +120,9 @@
       <Filter>private</Filter>
     </ClCompile>
     <ClCompile Include="public\render\texture_asset.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\render\mesh_instance_render_pass.cpp">
       <Filter>private</Filter>
     </ClCompile>
   </ItemGroup>

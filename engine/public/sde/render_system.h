@@ -5,7 +5,9 @@ Matt Hoyle
 #pragma once
 
 #include <vector>
+#include <memory>
 #include "core/system.h"
+#include "math/glm_headers.h"
 #include "render/render_pass.h"
 
 namespace Render
@@ -13,6 +15,7 @@ namespace Render
 	class Device;
 	class Window;
 	class Camera;
+	class RenderPass;
 }
 
 namespace SDE
@@ -25,7 +28,7 @@ namespace SDE
 		RenderSystem();
 		virtual ~RenderSystem();
 
-		uint32_t CreatePass(std::string passName);
+		uint32_t AddPass(Render::RenderPass& pass);
 		Render::RenderPass& GetPass(uint32_t passId);
 
 		inline uint32_t GetViewportWidth() { return m_initParams.m_windowWidth; }
@@ -53,13 +56,13 @@ namespace SDE
 	private:
 		InitialisationParams m_initParams;
 		glm::vec4 m_clearColour;
-		std::vector<Render::RenderPass> m_passes;
+		std::vector<Render::RenderPass*> m_passes;
 		std::unique_ptr<Render::Window> m_window;
 		std::unique_ptr<Render::Device> m_device;
 	};
 
 	inline Render::RenderPass& RenderSystem::GetPass(uint32_t passId)
 	{
-		return m_passes[passId];
+		return *m_passes[passId];
 	}
 }

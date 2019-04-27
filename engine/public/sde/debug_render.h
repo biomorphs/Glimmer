@@ -13,7 +13,7 @@ namespace Render
 	class ShaderProgram;
 	class Mesh;
 	class Material;
-	class RenderPass;
+	class MeshInstanceRenderPass;
 	class Camera;
 }
 
@@ -28,7 +28,7 @@ namespace SDE
 
 		bool Create();
 		void Destroy();
-		void PushToRenderPass(Render::Camera& camera, Render::RenderPass& targetPass);
+		void PushToRenderPass(Render::Camera& camera, Render::MeshInstanceRenderPass& targetPass);
 		void AddLines(const glm::vec4* v, const glm::vec4* c, uint32_t count);
 		void AddAxisAtPoint(const glm::vec4& point, float scale = 1.0f);
 		void AddBox(const glm::vec3& boxCenter, const glm::vec3& boxSize, const glm::vec4& colour);

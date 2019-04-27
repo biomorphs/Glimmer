@@ -3,6 +3,7 @@ SDLEngine
 Matt Hoyle
 */
 #include "script_system.h"
+#include "kernel/file_io.h"
 #include <sol.hpp>
 
 namespace SDE
@@ -20,16 +21,39 @@ namespace SDE
 		state.open_libraries(sol::lib::base, sol::lib::math);
 	}
 
+	void ScriptSystem::RunScriptFromFile(const char* filename)
+	{
+		std::string scriptText;
+		if (Kernel::FileIO::LoadTextFromFile(filename, scriptText))
+		{
+			RunScript(scriptText.data());
+		}
+	}
+
+	bool ScriptSystem::RunScriptFromFile(const char* filename, std::string& errorText) noexcept
+	{
+		try
+		{
+			RunScriptFromFile(filename);
+			return true;
+		}
+		catch (const sol::error& err)
+		{
+			errorText = err.what();
+			return false;
+		}
+	}
+
 	void ScriptSystem::RunScript(const char* scriptSource)
 	{
 		m_globalState->script(scriptSource);
 	}
 
-	bool ScriptSystem::RunScript(const char* scriptSource, std::string& errorText)
+	bool ScriptSystem::RunScript(const char* scriptSource, std::string& errorText) noexcept
 	{
 		try 
 		{
-			m_globalState->script(scriptSource);
+			RunScript(scriptSource);
 			return true;
 		}
 		catch (const sol::error& err) 

@@ -18,9 +18,9 @@ namespace SDE
 	{
 	}
 
-	uint32_t RenderSystem::CreatePass(std::string passName)
+	uint32_t RenderSystem::AddPass(Render::RenderPass& pass)
 	{
-		m_passes.push_back(Render::RenderPass());
+		m_passes.push_back(&pass);
 		return (uint32_t)(m_passes.size() - 1);
 	}
 
@@ -55,10 +55,10 @@ namespace SDE
 	{
 		m_device->ClearColourDepthTarget(m_clearColour);
 
-		for (auto& renderPass : m_passes)
+		for (auto renderPass : m_passes)
 		{
-			renderPass.RenderAll(*m_device);
-			renderPass.Reset();
+			renderPass->RenderAll(*m_device);
+			renderPass->Reset();
 		}
 
 		m_device->Present();

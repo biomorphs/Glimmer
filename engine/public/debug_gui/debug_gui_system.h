@@ -23,6 +23,7 @@ namespace SDE
 namespace Render
 {
 	class Texture;
+	class MeshInstanceRenderPass;
 }
 
 namespace DebugGui
@@ -35,17 +36,7 @@ namespace DebugGui
 		DebugGuiSystem();
 		virtual ~DebugGuiSystem();
 
-		// Pass one of these BEFORE PostInitialise is called
-		struct InitialisationParams
-		{
-			InitialisationParams();
-			InitialisationParams(SDE::RenderSystem* renderSystem, Input::InputSystem* inputSystem, uint32_t passId);
-			Input::InputSystem* m_inputSystem;
-			SDE::RenderSystem* m_renderSystem;
-			uint32_t m_renderPassId;
-		};
-		void SetInitialiseParams(const InitialisationParams& p) { m_initParams = p; }
-
+		virtual bool PreInit(Core::ISystemEnumerator& systemEnumerator);
 		virtual bool Initialise() override;
 		virtual bool PostInit() override;
 		virtual bool Tick() override;
@@ -69,7 +60,9 @@ namespace DebugGui
 		void UpdateImgGuiInputState();
 
 		Core::Timer m_timer;
-		InitialisationParams m_initParams;
+		Input::InputSystem* m_inputSystem;
+		SDE::RenderSystem* m_renderSystem;
 		std::unique_ptr<DebugGuiRender> m_renderer;
+		std::unique_ptr<Render::MeshInstanceRenderPass> m_renderPass;
 	};
 }

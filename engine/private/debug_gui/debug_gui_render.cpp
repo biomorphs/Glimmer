@@ -10,7 +10,7 @@ Matt Hoyle
 #include "render/texture_source.h"
 #include "render/texture.h"
 #include "render/mesh_builder.h"
-#include "render/render_pass.h"
+#include "render/mesh_instance_render_pass.h"
 #include <imggui\imgui.h>
 #include "math/glm_headers.h"
 
@@ -128,7 +128,7 @@ namespace DebugGui
 		colourStream.SetData(0, colour.size() * sizeof(float), colour.data());
 	}
 
-	void DebugGuiRender::SubmitToPass(Render::RenderPass& pass)
+	void DebugGuiRender::SubmitToPass(Render::MeshInstanceRenderPass& pass)
 	{
 		SDE_ASSERT(m_mesh->GetChunks().size() == m_chunkInstanceProps.size());
 

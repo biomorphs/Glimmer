@@ -13,7 +13,7 @@ namespace Render
 	class ShaderProgram;
 	class Material;
 	class Mesh;
-	class RenderPass;
+	class MeshInstanceRenderPass;
 	class Camera;
 }
 
@@ -29,7 +29,7 @@ namespace DebugGui
 		bool Create(float viewportWidth, float viewportHeight);
 		void Destroy();
 		void RebuildMesh();
-		void SubmitToPass(Render::RenderPass& pass);
+		void SubmitToPass(Render::MeshInstanceRenderPass& pass);
 
 	private:
 		static void ImgGui_RenderDrawLists(ImDrawData* draw_data);
