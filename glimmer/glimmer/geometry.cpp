@@ -3,6 +3,50 @@
 
 namespace Geometry
 {
+	// https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
+	bool RayTriangleIntersect(const Ray& ray, const Triangle& tri, float& t, glm::vec3& normal)
+	{
+		const float EPSILON = 0.0000001f;
+		auto vertex0 = tri.m_v0;
+		auto vertex1 = tri.m_v1;
+		auto vertex2 = tri.m_v2;
+		glm::vec3 edge1, edge2, h, s, q;
+		float a, f, u, v;
+		edge1 = vertex1 - vertex0;
+		edge2 = vertex2 - vertex0;
+		h = glm::cross(ray.m_direction,edge2);
+		a = glm::dot(edge1,h);
+		if (a > -EPSILON && a < EPSILON)
+		{
+			return false;    // This ray is parallel to this triangle.
+		}
+		f = 1.0f / a;
+		s = ray.m_origin - vertex0;
+		u = f * glm::dot(s,h);
+		if (u < 0.0f || u > 1.0f)
+		{
+			return false;
+		}
+		q = glm::cross(s,edge1);
+		v = f * glm::dot(ray.m_direction,q);
+		if (v < 0.0f || u + v > 1.0f)
+		{
+			return false;
+		}
+		// At this stage we can compute t to find out where the intersection point is on the line.
+		float tFinal = f * glm::dot(edge2,q);
+		if (tFinal > EPSILON) // ray intersection
+		{
+			t = tFinal + 0.001f;
+			normal = glm::normalize(glm::cross(edge1,edge2));
+			return true;
+		}
+		else // This means that there is a line intersection but not a ray intersection.
+		{
+			return false;
+		}
+	}
+
 	bool RayPlaneIntersect(const Ray& ray, const Plane& plane, float& tOut, glm::vec3& normal)
 	{
 		float denom = glm::dot(plane.m_normal, ray.m_direction);
@@ -56,44 +100,6 @@ namespace Geometry
 		auto hitPos = ray.m_origin + ray.m_direction * t;
 		auto hitLength = glm::length(hitPos - spherePos);
 		normal = glm::normalize(hitPos - spherePos);
-		return true;
-	}
-
-	bool RayBoxIntersect(const Ray& ray, const Box& box, float& t, glm::vec3& normal)
-	{
-		float tmin = (box.m_min.x - ray.m_origin.x) / ray.m_direction.x;
-		float tmax = (box.m_max.x - ray.m_origin.x) / ray.m_direction.x;
-
-		if (tmin > tmax) std::swap(tmin, tmax);
-
-		float tymin = (box.m_min.y - ray.m_origin.y) / ray.m_direction.y;
-		float tymax = (box.m_max.y - ray.m_origin.y) / ray.m_direction.y;
-
-		if (tymin > tymax) std::swap(tymin, tymax);
-
-		if ((tmin > tymax) || (tymin > tmax))
-			return false;
-
-		if (tymin > tmin)
-			tmin = tymin;
-
-		if (tymax < tmax)
-			tmax = tymax;
-
-		float tzmin = (box.m_min.z - ray.m_origin.z) / ray.m_direction.z;
-		float tzmax = (box.m_max.z - ray.m_origin.z) / ray.m_direction.z;
-
-		if (tzmin > tzmax) std::swap(tzmin, tzmax);
-
-		if ((tmin > tzmax) || (tzmin > tmax))
-			return false;
-
-		if (tzmin > tmin)
-			tmin = tzmin;
-
-		if (tzmax < tmax)
-			tmax = tzmax;
-
 		return true;
 	}
 }

@@ -20,13 +20,14 @@ namespace Render
 
 namespace SDE
 {
-	class JobSystem;
+	class ScriptSystem;
+	class RenderSystem;
 }
 
 class MyRender : public Core::ISystem
 {
 public:
-	MyRender(int windowResX, int windowResY);
+	MyRender();
 	virtual ~MyRender();
 	virtual bool PreInit(Core::ISystemEnumerator& systemEnumerator);
 	virtual bool PostInit();
@@ -39,6 +40,8 @@ private:
 
 	void UpdateControls();
 	void UpdateSceneControls();
+
+	void InitRenderSystemFromConfig(SDE::RenderSystem& rs);
 	
 	Scene m_scene;
 	Render::Camera m_camera;
@@ -46,7 +49,7 @@ private:
 	bool m_isPaused = false;
 	std::unique_ptr<CpuRaytracer> m_cpuTracer;
 
-	glm::ivec2 m_windowResolution;			// 
 	uint32_t m_forwardPassId;				// forward render pass id
 	DebugGui::DebugGuiSystem* m_debugGui;	// imgui interface
+	SDE::ScriptSystem* m_scriptSystem;
 };

@@ -34,10 +34,17 @@ struct Plane
 	Material m_material;
 };
 
+struct Mesh
+{
+	std::vector<Geometry::Triangle> m_triangles;
+	Material m_material;
+};
+
 struct Scene
 {
 	std::vector<Sphere> spheres;
 	std::vector<Plane> planes;
+	std::vector<Mesh> meshes;
 	std::vector<Light> lights;
 	glm::vec3 skyColour;
 };

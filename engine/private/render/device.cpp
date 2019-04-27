@@ -20,7 +20,7 @@ namespace Render
 		SDL_Window* windowHandle = theWindow.GetWindowHandle();
 		SDE_RENDER_ASSERT(windowHandle);
 
-		// Request opengl 3.0 context.
+		// Request opengl 4.3 context.
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 

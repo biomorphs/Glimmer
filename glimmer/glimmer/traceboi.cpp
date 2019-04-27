@@ -68,6 +68,23 @@ bool RayHitObject(const Geometry::Ray& ray, const TraceParamaters& globals, floa
 		}
 	}	
 
+	for (auto m : globals.scene.meshes)
+	{
+		for (auto tri : m.m_triangles)
+		{
+			if (Geometry::RayTriangleIntersect(ray, tri, t, normal))
+			{
+				if (t < closestT)
+				{
+					closestNormal = normal;
+					closestT = t;
+					closestMaterial = m.m_material;
+					hit = true;
+				}
+			}
+		}
+	}
+
 	if (hit)
 	{
 		t = closestT;
@@ -189,6 +206,7 @@ glm::vec3 CastRay(const Geometry::Ray& ray, const TraceParamaters& globals, int 
 
 			outColour = mixed + specular;
 		}
+		//outColour = hitNormal;
 	}
 	else
 	{

@@ -1,11 +1,15 @@
 #include "render.h"
 #include "kernel/time.h"
+#include "kernel/file_io.h"
+#include "kernel/log.h"
 #include "core/system_enumerator.h"
 #include "debug_gui/debug_gui_system.h"
 #include "sde/render_system.h"
 #include "sde/debug_render.h"
+#include "sde/script_system.h"
 #include "traceboi.h"
 #include <vector>
+#include <sol.hpp>
 
 const uint32_t c_outputSizeX = 512;
 const uint32_t c_outputSizeY = 512;
@@ -13,6 +17,27 @@ const uint32_t c_outputSizeY = 512;
 float frand(float min, float max)
 {
 	return min + (rand() / (float)RAND_MAX) * fabs(max - min);
+}
+
+void Box(Mesh& m, glm::vec3 origin, glm::vec3 size)
+{
+	glm::vec3 p0 = origin + glm::vec3( -size.x, -size.y, -size.z );
+	glm::vec3 p1 = origin + glm::vec3( size.x, -size.y, -size.z );
+	glm::vec3 p2 = origin + glm::vec3( size.x, size.y, -size.z );
+	glm::vec3 p3 = origin + glm::vec3( -size.x, size.y, -size.z );
+	glm::vec3 p4 = origin + glm::vec3( -size.x, -size.y, size.z );
+	glm::vec3 p5 = origin + glm::vec3( size.x, -size.y, size.z );
+	glm::vec3 p6 = origin + glm::vec3( size.x, size.y, size.z );
+	glm::vec3 p7 = origin + glm::vec3( -size.x, size.y, size.z );
+
+	m.m_triangles.push_back({ p0,p1,p2 });
+	m.m_triangles.push_back({ p0,p2,p3 });
+	m.m_triangles.push_back({ p4,p6,p5 });
+	m.m_triangles.push_back({ p4,p7,p6 });
+	m.m_triangles.push_back({ p3, p6, p2 });
+	m.m_triangles.push_back({ p3, p7, p6 });
+	m.m_triangles.push_back({ p1, p6, p5 });
+	m.m_triangles.push_back({ p1, p2, p6 });
 }
 
 void MyRender::CreateScene()
@@ -24,14 +49,6 @@ void MyRender::CreateScene()
 			});
 	}
 
-	for (int i = 0; i < 8; ++i)
-	{
-		m_scene.lights.push_back({
-			{frand(-250.0f,250.0f),frand(50.0f,500.0f), frand(-250.0f,250.0f)},
-			{frand(0.0f,0.25f), frand(0.0f,0.25f), frand(0.0f,0.25f)}
-			});
-	}
-
 	m_scene.planes.push_back({
 		{{0.0f,1.0f,0.0f},{0.0f,-100.0f,0.0f}},{0.0f,Diffuse}
 		});
@@ -39,6 +56,19 @@ void MyRender::CreateScene()
 	m_scene.spheres.push_back({
 		glm::vec4(-35.0f,82.0f,130.0f,60.0f), {0.0f, ReflectRefract}
 	});
+
+	///*Mesh testMesh;
+	//Box(testMesh, { -50.0f,0.0f,50.0f }, { 32.0f,32.0f,32.0f });
+	//testMesh.m_material = { 0.0f,Diffuse };
+	//m_scene.meshes.push_back(testMesh);*/
+
+	for (int i = 0; i < 8; ++i)
+	{
+		m_scene.lights.push_back({
+			{frand(-250.0f,250.0f),frand(50.0f,500.0f), frand(-250.0f,250.0f)},
+			{frand(0.0f,0.25f), frand(0.0f,0.25f), frand(0.0f,0.25f)}
+			});
+	}
 
 	m_scene.skyColour = glm::vec3(0.35f, 0.42f, 0.6f);
 }
@@ -49,9 +79,9 @@ void MyRender::SetupCamera()
 	m_camera.LookAt({ 0.0f, 50.0f, -200.0f }, { 0.0f, 50.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
 }
 
-MyRender::MyRender(int windowResX, int windowResY)
-	: m_windowResolution(windowResX, windowResY)
-	, m_debugGui(nullptr)
+MyRender::MyRender()
+	: m_debugGui(nullptr)
+	, m_scriptSystem(nullptr)
 {
 	srand((uint32_t)Kernel::Time::HighPerformanceCounterTicks());
 }
@@ -61,16 +91,55 @@ MyRender::~MyRender()
 
 }
 
+void MyRender::InitRenderSystemFromConfig(SDE::RenderSystem& rs)
+{
+	// default params
+	SDE::RenderSystem::InitialisationParams renderParams(1280, 720, false, "Glimmer");
+	try
+	{
+		auto resolution = m_scriptSystem->Globals()["Config"]["Render"]["Resolution"];
+		if (resolution.valid())
+		{
+			renderParams.m_windowWidth = resolution[1];	// lua table = 1 indexed
+			renderParams.m_windowHeight = resolution[2];
+		}
+		auto fullScreen = m_scriptSystem->Globals()["Config"]["Render"]["Fullscreen"];
+		if (fullScreen.valid())
+		{
+			renderParams.m_fullscreen = fullScreen;
+		}
+	}
+	catch (const sol::error& err)
+	{
+		SDE_LOG("Lua error in config.lua - %s", err.what());
+	}
+	rs.SetInitialiseParams(renderParams);
+}
+
 bool MyRender::PreInit(Core::ISystemEnumerator& systemEnumerator)
 {
 	auto inputSystem = (Input::InputSystem*)systemEnumerator.GetSystem("Input");
 	auto renderSystem = (SDE::RenderSystem*)systemEnumerator.GetSystem("Render");
 	auto jobSystem = (SDE::JobSystem*)systemEnumerator.GetSystem("Jobs");
 	m_debugGui = (DebugGui::DebugGuiSystem*)systemEnumerator.GetSystem("DebugGui");
+	m_scriptSystem = (SDE::ScriptSystem*)systemEnumerator.GetSystem("Script");
 
-	// Pass init params to renderer
-	SDE::RenderSystem::InitialisationParams renderParams(m_windowResolution.x, m_windowResolution.y, false, "AppSkeleton");
-	renderSystem->SetInitialiseParams(renderParams);
+	// Load config.lua, populates Config global table
+	std::string configLuaText;
+	if (Kernel::FileIO::LoadTextFromFile("config.lua", configLuaText))
+	{
+		try
+		{	
+			m_scriptSystem->RunScript(configLuaText.data());
+		}
+		catch (const sol::error& err)
+		{
+			SDE_LOG("Lua error in config.lua - %s", err.what());
+		}
+	}	
+
+	// Setup render parameters 
+	InitRenderSystemFromConfig(*renderSystem);
 
 	// Set up render passes
 	uint32_t guiPassId = renderSystem->CreatePass("DebugGui");
