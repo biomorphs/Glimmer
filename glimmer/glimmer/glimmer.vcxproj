@@ -182,14 +182,14 @@
   <ItemGroup>
     <ClCompile Include="cpu_raytracer.cpp" />
     <ClCompile Include="geometry.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="glimmer.cpp" />
-    <ClCompile Include="render.cpp" />
     <ClCompile Include="traceboi.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cpu_raytracer.h" />
     <ClInclude Include="geometry.h" />
-    <ClInclude Include="render.h" />
+    <ClInclude Include="glimmer.h" />
     <ClInclude Include="traceboi.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

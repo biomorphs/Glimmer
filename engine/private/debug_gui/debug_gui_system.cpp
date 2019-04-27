@@ -82,24 +82,24 @@ namespace DebugGui
 		ImGui::End();
 	}
 
-	void DebugGuiSystem::DragFloat(const char* label, float& f, float step, float min, float max)
+	bool DebugGuiSystem::DragFloat(const char* label, float& f, float step, float min, float max)
 	{
-		ImGui::DragFloat(label, &f, step, min, max);
+		return ImGui::DragFloat(label, &f, step, min, max);
 	}
 
-	void DebugGuiSystem::DragVector(const char* label, glm::vec3& v, float step, float min, float max)
+	bool DebugGuiSystem::DragVector(const char* label, glm::vec3& v, float step, float min, float max)
 	{
-		ImGui::DragFloat3(label, glm::value_ptr(v), step, min, max);
+		return ImGui::DragFloat3(label, glm::value_ptr(v), step, min, max);
 	}
 
-	void DebugGuiSystem::ColourEdit(const char* label, glm::vec4& c, bool showAlpha)
+	bool DebugGuiSystem::ColourEdit(const char* label, glm::vec4& c, bool showAlpha)
 	{
-		ImGui::ColorEdit4(label, glm::value_ptr(c), showAlpha);
+		return ImGui::ColorEdit4(label, glm::value_ptr(c), showAlpha);
 	}
 
-	void DebugGuiSystem::DragVector(const char* label, glm::vec4& v, float step, float min, float max)
+	bool DebugGuiSystem::DragVector(const char* label, glm::vec4& v, float step, float min, float max)
 	{
-		ImGui::DragFloat4(label, glm::value_ptr(v), step, min, max);
+		return ImGui::DragFloat4(label, glm::value_ptr(v), step, min, max);
 	}
 
 	bool DebugGuiSystem::Button(const char* txt)

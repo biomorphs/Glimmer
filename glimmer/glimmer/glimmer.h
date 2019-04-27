@@ -24,17 +24,18 @@ namespace SDE
 	class RenderSystem;
 }
 
-class MyRender : public Core::ISystem
+class Glimmer : public Core::ISystem
 {
 public:
-	MyRender();
-	virtual ~MyRender();
+	Glimmer();
+	virtual ~Glimmer();
 	virtual bool PreInit(Core::ISystemEnumerator& systemEnumerator);
 	virtual bool PostInit();
 	virtual bool Tick();
 	virtual void Shutdown();
 private:
 	bool RenderFrame();
+	void SetupSceneScriptBindings();
 	void CreateScene();
 	void SetupCamera();
 
@@ -46,6 +47,7 @@ private:
 	Scene m_scene;
 	Render::Camera m_camera;
 
+	bool m_sceneDirty = false;
 	bool m_isPaused = false;
 	std::unique_ptr<CpuRaytracer> m_cpuTracer;
 

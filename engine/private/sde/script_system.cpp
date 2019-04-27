@@ -17,7 +17,7 @@ namespace SDE
 
 	void ScriptSystem::OpenDefaultLibraries(sol::state& state)
 	{
-		state.open_libraries(sol::lib::base);
+		state.open_libraries(sol::lib::base, sol::lib::math);
 	}
 
 	void ScriptSystem::RunScript(const char* scriptSource)

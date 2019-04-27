@@ -60,10 +60,10 @@ namespace DebugGui
 		void GraphLines(const char* label, glm::vec2 size, GraphDataBuffer& buffer);
 		void GraphHistogram(const char* label, glm::vec2 size, GraphDataBuffer& buffer);
 		bool Checkbox(const char* text, bool* val);
-		void DragFloat(const char* label, float& f, float step = 1.0f, float min = 0.0f, float max = 0.0f);
-		void DragVector(const char* label, glm::vec4& v, float step = 1.0f, float min = 0.0f, float max = 0.0f);
-		void DragVector(const char* label, glm::vec3& v, float step = 1.0f, float min = 0.0f, float max = 0.0f);
-		void ColourEdit(const char* label, glm::vec4& c, bool showAlpha = true);
+		bool DragFloat(const char* label, float& f, float step = 1.0f, float min = 0.0f, float max = 0.0f);
+		bool DragVector(const char* label, glm::vec4& v, float step = 1.0f, float min = 0.0f, float max = 0.0f);
+		bool DragVector(const char* label, glm::vec3& v, float step = 1.0f, float min = 0.0f, float max = 0.0f);
+		bool ColourEdit(const char* label, glm::vec4& c, bool showAlpha = true);
 
 	private:
 		void UpdateImgGuiInputState();
