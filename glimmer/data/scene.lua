@@ -1,15 +1,15 @@
 -- Scene
 
-for i = 0, 32 do
-	glimmer.scene.addSphere(math.random(-100,100), math.random(-32,64), math.random(0,50), math.random(4,12), false)
-end
-glimmer.scene.addSphere(-35, 82, 130, 80, true)
-
-glimmer.scene.addPlane(0,1,0,0,-100,0,false)
-
 local function randFloat(min,max)
 	return math.min(min,max) + math.random() * math.abs(max-min)
 end
+
+for i = 0, 32 do
+	glimmer.scene.addSphere(math.random(-100,100), math.random(-32,64), math.random(0,50), math.random(4,12), false)
+end
+glimmer.scene.addSphere(-35, 82, 130, 64, true)
+
+glimmer.scene.addPlane(0,1,0,0,-100,0,false)
 
 -- Lights
 for i = 0, 8 do
