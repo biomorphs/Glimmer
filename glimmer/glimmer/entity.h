@@ -27,7 +27,8 @@ public:
 
 	void AddComponent(Component* c);		// takes ownership of the component memory
 	uint32_t ComponentCount() const { return (uint32_t)m_components.size(); }
-	Component* GetComponent(int i) const { return m_components[i].get(); }
+	Component* GetComponentByIndex(int i) const { return m_components[i].get(); }
+	Component* GetComponentByType(const char* type);
 
 	template<class ScriptScope>
 	static inline void RegisterScriptType(ScriptScope&);	// registers this type in the scope parameter (either sol::state or sol::table, or your own)
@@ -47,6 +48,6 @@ void Entity::RegisterScriptType(ScriptScope& scope)
 		"GetName", &Entity::GetName,
 		"AddComponent", &Entity::AddComponent,
 		"ComponentCount", &Entity::ComponentCount,
-		"GetComponent", &Entity::GetComponent
+		"GetComponentByIndex", &Entity::GetComponentByIndex
 	);
 }

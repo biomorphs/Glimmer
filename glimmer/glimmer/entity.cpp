@@ -47,6 +47,18 @@ Entity::~Entity()
 {
 }
 
+Component* Entity::GetComponentByType(const char* type)
+{
+	for (const auto& it : m_components)
+	{
+		if (strcmp(type, it->GetTypeString()) == 0)
+		{
+			return it.get();
+		}
+	}
+	return nullptr;
+}
+
 void Entity::AddComponent(Component* c)
 {
 	m_components.emplace_back(std::move(c));

@@ -7,11 +7,15 @@
 	scope.new_usertype<c>(#c, sol::constructors<c()>(), "GetTypeString", &c::GetTypeString, __VA_ARGS__);	\
 	{	\
 		auto entityNS = scope["Entity"].get_or_create<sol::table>();	\
-		entityNS["Create_" #c] = [](Entity& e)							\
+		entityNS["CreateComponent_" #c] = [](Entity& e)							\
 		{																\
 			c* cmp = new c();											\
 			e.AddComponent(cmp);										\
 			return cmp;													\
+		};																\
+		entityNS["GetComponent_" #c] = [](Entity& e)					\
+		{																\
+			return (c*)e.GetComponentByType(#c);						\
 		};																\
 	}
 

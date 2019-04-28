@@ -3,7 +3,7 @@ local function printEntity(handle)
 		entity = handle:GetEntity()
 		print("ID: ", entity:GetID(), ", Name: ", entity:GetName())
 		for i = 0, entity:ComponentCount()-1 do
-			cmp = entity:GetComponent(i)
+			cmp = entity:GetComponentByIndex(i)
 			print("\t", cmp:GetTypeString())
 		end
 	else
@@ -24,6 +24,10 @@ printEntity(entityHandle3)
 local failHandle = world:CreateEntity("entity1")
 printEntity(failHandle)
 
-local tc = entityHandle:GetEntity():Create_TestComponent()
+local tc = entityHandle:GetEntity():CreateComponent_TestComponent()
 tc:Bark()
 printEntity(entityHandle)
+
+local tcmp = entityHandle:GetEntity():GetComponent_TestComponent()
+tcmp:Bark()
+print(tcmp)
