@@ -20,6 +20,7 @@ namespace DebugGui
 		ImguiSdlGL3RenderPass(Render::Window* window, Render::Device* device);
 		virtual ~ImguiSdlGL3RenderPass();
 		void NewFrame();
+		void HandleEvent(void*);
 		virtual void Reset();
 		virtual void RenderAll(class Render::Device&);
 	private:

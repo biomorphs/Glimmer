@@ -39,7 +39,6 @@
     <ClInclude Include="public\kernel\log.h" />
     <ClInclude Include="public\kernel\mutex.h" />
     <ClInclude Include="public\kernel\semaphore.h" />
-    <ClInclude Include="public\kernel\system_events.h" />
     <ClInclude Include="public\kernel\platform.h" />
     <ClInclude Include="public\kernel\thread.h" />
     <ClInclude Include="public\kernel\time.h" />
@@ -50,7 +49,6 @@
     <ClCompile Include="private\kernel\log.cpp" />
     <ClCompile Include="private\kernel\mutex.cpp" />
     <ClCompile Include="private\kernel\semaphore.cpp" />
-    <ClCompile Include="private\kernel\system_events.cpp" />
     <ClCompile Include="private\kernel\platform.cpp" />
     <ClCompile Include="private\kernel\thread.cpp" />
     <ClCompile Include="private\kernel\time.cpp" />

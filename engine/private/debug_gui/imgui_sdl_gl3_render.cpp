@@ -23,6 +23,11 @@ namespace DebugGui
 		ImGui_ImplSDL2_Shutdown();
 	}
 
+	void ImguiSdlGL3RenderPass::HandleEvent(void* e)
+	{
+		ImGui_ImplSDL2_ProcessEvent((SDL_Event*)e);
+	}
+
 	void ImguiSdlGL3RenderPass::NewFrame()
 	{
 		ImGui_ImplOpenGL3_NewFrame();

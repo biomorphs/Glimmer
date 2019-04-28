@@ -6,16 +6,21 @@ Matt Hoyle
 
 #include "core/system.h"
 #include <vector>
+#include <functional>
 
-namespace Engine
+namespace SDE
 {
 	// This class handles polling system events and controls the lifetime of the engine
-	// System-events(shutdown,etc) should not go outside this system
 	class EventSystem : public Core::ISystem
 	{
 	public:
 		EventSystem();
 		virtual ~EventSystem();
 		bool Tick();
+
+		using EventHandler = std::function<void(void*)>;		// void* = SDL_Event*
+		void RegisterEventHandler(EventHandler);
+	private:
+		std::vector<EventHandler> m_handlers;
 	};
 }

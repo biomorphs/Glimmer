@@ -21,9 +21,6 @@
     <ClInclude Include="public\kernel\time.h">
       <Filter>public</Filter>
     </ClInclude>
-    <ClInclude Include="public\kernel\system_events.h">
-      <Filter>public</Filter>
-    </ClInclude>
     <ClInclude Include="public\kernel\platform.h">
       <Filter>public</Filter>
     </ClInclude>
@@ -51,9 +48,6 @@
       <Filter>private</Filter>
     </ClCompile>
     <ClCompile Include="private\kernel\time.cpp">
-      <Filter>private</Filter>
-    </ClCompile>
-    <ClCompile Include="private\kernel\system_events.cpp">
       <Filter>private</Filter>
     </ClCompile>
     <ClCompile Include="private\kernel\platform.cpp">

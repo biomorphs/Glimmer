@@ -6,7 +6,6 @@ Matt Hoyle
 #include "debug_gui_render.h"
 #include "imgui_sdl_gl3_render.h"
 #include "graph_data_buffer.h"
-#include "sde/render_system.h"
 #include "render/mesh.h"
 #include "render/shader_binary.h"
 #include "render/shader_program.h"
@@ -18,6 +17,8 @@ Matt Hoyle
 #include "render/mesh_instance_render_pass.h"
 #include "input/input_system.h"
 #include "core/system_enumerator.h"
+#include "sde/render_system.h"
+#include "sde/event_system.h"
 #include "kernel/log.h"
 #include <imgui\imgui.h>
 
@@ -37,6 +38,10 @@ namespace DebugGui
 	{
 		m_renderSystem = (SDE::RenderSystem*)systemEnumerator.GetSystem("Render");
 		m_inputSystem = (Input::InputSystem*)systemEnumerator.GetSystem("Input");
+		auto EventSystem = (SDE::EventSystem*)systemEnumerator.GetSystem("Events");
+		{
+			this->m_imguiPass->HandleEvent(e);
+		});
 
 		return true;
 	}
@@ -60,21 +65,21 @@ namespace DebugGui
 
 	void DebugGuiSystem::UpdateImgGuiInputState()
 	{
-		ImGuiIO& io = ImGui::GetIO();
+		//ImGuiIO& io = ImGui::GetIO();
 
-		// Tick 
-		static double s_lastTickTime = m_timer.GetSeconds();
-		double thisTime = m_timer.GetSeconds();
-		float thisTickTime = (float)(thisTime - s_lastTickTime);
-		s_lastTickTime = thisTime;
-		io.DeltaTime = thisTickTime > 0.0 ? thisTickTime : (float)(1.0f / 60.0f);
+		//// Tick 
+		//static double s_lastTickTime = m_timer.GetSeconds();
+		//double thisTime = m_timer.GetSeconds();
+		//float thisTickTime = (float)(thisTime - s_lastTickTime);
+		//s_lastTickTime = thisTime;
+		//io.DeltaTime = thisTickTime > 0.0 ? thisTickTime : (float)(1.0f / 60.0f);
 
-		// Setup inputs
-		const auto& mouseState = m_inputSystem->MouseState();
-		io.MousePos = ImVec2((float)mouseState.m_cursorX, (float)mouseState.m_cursorY);
-		io.MouseDown[0] = (mouseState.m_buttonState & Input::MouseButtons::LeftButton) != 0;
-		io.MouseDown[1] = (mouseState.m_buttonState & Input::MouseButtons::MiddleButton) != 0;
-		io.MouseDown[2] = (mouseState.m_buttonState & Input::MouseButtons::RightButton) != 0;
+		//// Setup inputs
+		//const auto& mouseState = m_inputSystem->MouseState();
+		//io.MousePos = ImVec2((float)mouseState.m_cursorX, (float)mouseState.m_cursorY);
+		//io.MouseDown[0] = (mouseState.m_buttonState & Input::MouseButtons::LeftButton) != 0;
+		//io.MouseDown[1] = (mouseState.m_buttonState & Input::MouseButtons::MiddleButton) != 0;
+		//io.MouseDown[2] = (mouseState.m_buttonState & Input::MouseButtons::RightButton) != 0;
 	}
 
 	void DebugGuiSystem::BeginWindow(bool& windowOpen, const char* windowName, glm::vec2 size)
