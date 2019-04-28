@@ -36,6 +36,9 @@
     <ClInclude Include="public\sde\event_system.h">
       <Filter>public</Filter>
     </ClInclude>
+    <ClInclude Include="public\sde\config_system.h">
+      <Filter>public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="private\sde\debug_camera_controller.cpp">
@@ -60,6 +63,9 @@
       <Filter>private</Filter>
     </ClCompile>
     <ClCompile Include="private\sde\event_system.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\sde\config_system.cpp">
       <Filter>private</Filter>
     </ClCompile>
   </ItemGroup>

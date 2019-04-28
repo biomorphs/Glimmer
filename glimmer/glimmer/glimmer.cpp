@@ -6,6 +6,7 @@
 #include "sde/render_system.h"
 #include "sde/debug_render.h"
 #include "sde/script_system.h"
+#include "sde/config_system.h"
 #include "traceboi.h"
 #include <vector>
 #include <sol.hpp>
@@ -77,6 +78,7 @@ void Glimmer::SetupCamera()
 Glimmer::Glimmer()
 	: m_debugGui(nullptr)
 	, m_scriptSystem(nullptr)
+	, m_configSystem(nullptr)
 {
 	srand((uint32_t)Kernel::Time::HighPerformanceCounterTicks());
 }
@@ -92,13 +94,13 @@ void Glimmer::InitRenderSystemFromConfig(SDE::RenderSystem& rs)
 	SDE::RenderSystem::InitialisationParams renderParams(1280, 720, false, "Glimmer");
 	try
 	{
-		auto resolution = m_scriptSystem->Globals()["Config"]["Render"]["Resolution"];
+		auto resolution = m_configSystem->Values()["Render"]["Resolution"];
 		if (resolution.valid())
 		{
 			renderParams.m_windowWidth = resolution[1];	// lua table = 1 indexed
 			renderParams.m_windowHeight = resolution[2];
 		}
-		auto fullScreen = m_scriptSystem->Globals()["Config"]["Render"]["Fullscreen"];
+		auto fullScreen = m_configSystem->Values()["Render"]["Fullscreen"];
 		if (fullScreen.valid())
 		{
 			renderParams.m_fullscreen = fullScreen;
@@ -116,13 +118,7 @@ bool Glimmer::PreInit(Core::ISystemEnumerator& systemEnumerator)
 	auto renderSystem = (SDE::RenderSystem*)systemEnumerator.GetSystem("Render");
 	m_debugGui = (DebugGui::DebugGuiSystem*)systemEnumerator.GetSystem("DebugGui");
 	m_scriptSystem = (SDE::ScriptSystem*)systemEnumerator.GetSystem("Script");
-
-	// Load config.lua, populates Config global table
-	std::string errorText;
-	if (!m_scriptSystem->RunScriptFromFile("config.lua", errorText))
-	{
-		SDE_LOG("Lua error in config.lua - %s", errorText.data());
-	}
+	m_configSystem = (SDE::ConfigSystem*)systemEnumerator.GetSystem("Config");
 
 	// Setup render parameters 
 	InitRenderSystemFromConfig(*renderSystem);

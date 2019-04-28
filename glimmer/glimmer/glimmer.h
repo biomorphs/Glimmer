@@ -21,6 +21,7 @@ namespace SDE
 {
 	class ScriptSystem;
 	class RenderSystem;
+	class ConfigSystem;
 }
 
 class Glimmer : public Core::ISystem
@@ -53,4 +54,5 @@ private:
 	uint32_t m_forwardPassId;	
 	DebugGui::DebugGuiSystem* m_debugGui;
 	SDE::ScriptSystem* m_scriptSystem;
+	SDE::ConfigSystem* m_configSystem;
 };

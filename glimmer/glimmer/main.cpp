@@ -2,6 +2,7 @@
 #include "sde/job_system.h"
 #include "sde/script_system.h"
 #include "sde/event_system.h"
+#include "sde/config_system.h"
 #include "debug_gui/debug_gui_system.h"
 #include "engine/engine_startup.h"
 #include "input/input_system.h"
@@ -17,6 +18,7 @@ public:
 		systemManager.RegisterSystem("Jobs", new SDE::JobSystem());
 		systemManager.RegisterSystem("Input", new Input::InputSystem());
 		systemManager.RegisterSystem("Script", new SDE::ScriptSystem());
+		systemManager.RegisterSystem("Config", new SDE::ConfigSystem());
 		systemManager.RegisterSystem("DebugGui", new DebugGui::DebugGuiSystem());
 		systemManager.RegisterSystem("Glimmer", new Glimmer());
 		systemManager.RegisterSystem("Render", new SDE::RenderSystem());
