@@ -22,12 +22,11 @@ namespace SDE
 
 		void LoadConfigFile(const char* path);
 		bool PreInit(Core::ISystemEnumerator& systemEnumerator);
-		void Shutdown();
+		void PreShutdown();
 
-		const sol::table& Values() const { return m_configTable; }
+		const sol::table Values() const;
 
 	private:
 		ScriptSystem* m_scriptSystem;
-		sol::table m_configTable;
 	};
 }

@@ -20,6 +20,11 @@ namespace SDE
 	{
 	}
 
+	const sol::table ConfigSystem::Values() const
+	{
+		return m_scriptSystem->Globals()["Config"];
+	}
+
 	void ConfigSystem::LoadConfigFile(const char* path)
 	{
 		std::string errorText;
@@ -32,14 +37,12 @@ namespace SDE
 	bool ConfigSystem::PreInit(Core::ISystemEnumerator& systemEnumerator)
 	{
 		m_scriptSystem = (SDE::ScriptSystem*)systemEnumerator.GetSystem("Script");
-		auto& globals = m_scriptSystem->Globals();
-		m_configTable = globals.create_named_table("Config");
-
+		m_scriptSystem->Globals().create_named_table("Config");
 		LoadConfigFile("config.lua");
 		return true;
 	}
 
-	void ConfigSystem::Shutdown()
+	void ConfigSystem::PreShutdown()
 	{
 		m_scriptSystem = nullptr;
 	}

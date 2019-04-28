@@ -8,6 +8,9 @@
 #include "sde/script_system.h"
 #include "sde/config_system.h"
 #include "traceboi.h"
+#include "entity.h"
+#include "entity_handle.h"
+#include "world.h"
 #include <vector>
 #include <sol.hpp>
 
@@ -113,6 +116,31 @@ void Glimmer::InitRenderSystemFromConfig(SDE::RenderSystem& rs)
 	rs.SetInitialiseParams(renderParams);
 }
 
+class TestComponent : public Component
+{
+public:
+	TestComponent()
+	{
+		SDE_LOG("Hey there");
+	}
+	virtual ~TestComponent()
+	{
+		SDE_LOG("Bye");
+	}
+	virtual const char* GetTypeString() { return "TestComponent"; }
+	void Bark()
+	{
+		SDE_LOG("Woof!");
+	}
+
+	template<class ScriptScope>
+	static inline void RegisterScriptType(ScriptScope& scope)
+	{
+		REGISTER_COMPONENT_SCRIPT_TYPE(scope, TestComponent,
+			"Bark", &TestComponent::Bark);
+	}
+};
+
 bool Glimmer::PreInit(Core::ISystemEnumerator& systemEnumerator)
 {
 	auto renderSystem = (SDE::RenderSystem*)systemEnumerator.GetSystem("Render");
@@ -132,6 +160,23 @@ bool Glimmer::PreInit(Core::ISystemEnumerator& systemEnumerator)
 	m_cpuTracer = std::make_unique<CpuRaytracer>(params);
 
 	SetupCamera();
+
+	Entity::RegisterScriptType(m_scriptSystem->Globals());
+	EntityHandle::RegisterScriptType(m_scriptSystem->Globals());
+	World::RegisterScriptType(m_scriptSystem->Globals());
+	Component::RegisterScriptType(m_scriptSystem->Globals());
+	TestComponent::RegisterScriptType(m_scriptSystem->Globals());
+
+	World w;
+
+	m_scriptSystem->Globals()["myWorld"] = w;
+
+	std::string errorText;
+	if (!m_scriptSystem->RunScriptFromFile("entitytests.lua", errorText))
+	{
+		SDE_LOG("Lua error in entitytests.lua - %s", errorText.c_str());
+	}
+	w = m_scriptSystem->Globals()["myWorld"].get<World>();
 
 	return true;
 }

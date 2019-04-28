@@ -193,17 +193,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="component.cpp" />
     <ClCompile Include="cpu_raytracer.cpp" />
+    <ClCompile Include="entity.cpp" />
+    <ClCompile Include="entity_handle.cpp" />
     <ClCompile Include="geometry.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="glimmer.cpp" />
     <ClCompile Include="traceboi.cpp" />
+    <ClCompile Include="world.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="component.h" />
     <ClInclude Include="cpu_raytracer.h" />
+    <ClInclude Include="entity.h" />
+    <ClInclude Include="entity_handle.h" />
     <ClInclude Include="geometry.h" />
     <ClInclude Include="glimmer.h" />
     <ClInclude Include="traceboi.h" />
+    <ClInclude Include="world.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

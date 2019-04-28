@@ -1,0 +1,59 @@
+#include "entity.h"
+#include "kernel/atomics.h"
+
+Entity::Entity()
+{
+	m_id = GenerateID();
+}
+
+Entity::Entity(Entity&& other)
+{
+	m_id = other.m_id;
+	m_name = std::move(other.m_name);
+	other.m_id = InvalidID;
+	other.m_name = "";
+}
+
+Entity& Entity::operator=(Entity&& other)
+{
+	m_id = other.m_id;
+	m_name = std::move(other.m_name);
+	other.m_id = InvalidID;
+	other.m_name = "";
+	return *this;
+}
+
+
+Entity::Entity(const Entity& other)
+{
+	m_id = GenerateID();	
+	m_name = other.m_name;
+}
+
+Entity& Entity::operator=(const Entity& other)
+{
+	m_id = GenerateID();
+	m_name = other.m_name;
+	return *this;
+}
+
+Entity::Entity(std::string name)
+	: Entity()
+{
+	m_name = name;
+}
+
+Entity::~Entity()
+{
+}
+
+void Entity::AddComponent(Component* c)
+{
+	m_components.emplace_back(std::move(c));
+}
+
+EntityID Entity::GenerateID()
+{
+	static Kernel::AtomicInt32 s_idCounter = 0;
+	return s_idCounter.Add(1);
+}
