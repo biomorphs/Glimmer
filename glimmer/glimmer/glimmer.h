@@ -50,7 +50,7 @@ private:
 	bool m_isPaused = false;
 	std::unique_ptr<CpuRaytracer> m_cpuTracer;
 
-	uint32_t m_forwardPassId;				// forward render pass id
-	DebugGui::DebugGuiSystem* m_debugGui;	// imgui interface
+	uint32_t m_forwardPassId;	
+	DebugGui::DebugGuiSystem* m_debugGui;
 	SDE::ScriptSystem* m_scriptSystem;
 };

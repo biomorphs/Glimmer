@@ -113,9 +113,7 @@ void Glimmer::InitRenderSystemFromConfig(SDE::RenderSystem& rs)
 
 bool Glimmer::PreInit(Core::ISystemEnumerator& systemEnumerator)
 {
-	auto inputSystem = (Input::InputSystem*)systemEnumerator.GetSystem("Input");
 	auto renderSystem = (SDE::RenderSystem*)systemEnumerator.GetSystem("Render");
-	auto jobSystem = (SDE::JobSystem*)systemEnumerator.GetSystem("Jobs");
 	m_debugGui = (DebugGui::DebugGuiSystem*)systemEnumerator.GetSystem("DebugGui");
 	m_scriptSystem = (SDE::ScriptSystem*)systemEnumerator.GetSystem("Script");
 
@@ -132,7 +130,7 @@ bool Glimmer::PreInit(Core::ISystemEnumerator& systemEnumerator)
 
 	// Set up cpu ray tracer
 	CpuRaytracer::Parameters params;
-	params.m_jobSystem = jobSystem;
+	params.m_jobSystem = (SDE::JobSystem*)systemEnumerator.GetSystem("Jobs");
 	params.m_maxRecursion = 6;
 	params.m_image.m_dimensions = { c_outputSizeX, c_outputSizeY };
 	m_cpuTracer = std::make_unique<CpuRaytracer>(params);

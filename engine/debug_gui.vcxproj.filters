@@ -15,9 +15,6 @@
     <ClInclude Include="public\debug_gui\debug_gui_system.h">
       <Filter>public</Filter>
     </ClInclude>
-    <ClInclude Include="private\debug_gui\debug_gui_render.h">
-      <Filter>private</Filter>
-    </ClInclude>
     <ClInclude Include="public\debug_gui\graph_data_buffer.h">
       <Filter>public</Filter>
     </ClInclude>
@@ -33,9 +30,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="private\debug_gui\debug_gui_system.cpp">
-      <Filter>private</Filter>
-    </ClCompile>
-    <ClCompile Include="private\debug_gui\debug_gui_render.cpp">
       <Filter>private</Filter>
     </ClCompile>
     <ClCompile Include="private\debug_gui\graph_data_buffer.cpp">

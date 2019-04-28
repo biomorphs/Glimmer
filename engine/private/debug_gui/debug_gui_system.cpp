@@ -3,30 +3,18 @@ SDLEngine
 Matt Hoyle
 */
 #include "debug_gui_system.h"
-#include "debug_gui_render.h"
 #include "imgui_sdl_gl3_render.h"
 #include "graph_data_buffer.h"
-#include "render/mesh.h"
-#include "render/shader_binary.h"
-#include "render/shader_program.h"
-#include "render/material.h"
-#include "render/texture_source.h"
 #include "render/texture.h"
-#include "render/window.h"
-#include "render/device.h"
-#include "render/mesh_instance_render_pass.h"
-#include "input/input_system.h"
 #include "core/system_enumerator.h"
 #include "sde/render_system.h"
 #include "sde/event_system.h"
-#include "kernel/log.h"
 #include <imgui\imgui.h>
 
 namespace DebugGui
 {
 	DebugGuiSystem::DebugGuiSystem()
-		: m_inputSystem(nullptr)
-		, m_renderSystem(nullptr)
+		: m_renderSystem(nullptr)
 	{
 	}
 
@@ -37,7 +25,6 @@ namespace DebugGui
 	bool DebugGuiSystem::PreInit(Core::ISystemEnumerator& systemEnumerator)
 	{
 		m_renderSystem = (SDE::RenderSystem*)systemEnumerator.GetSystem("Render");
-		m_inputSystem = (Input::InputSystem*)systemEnumerator.GetSystem("Input");
 		auto EventSystem = (SDE::EventSystem*)systemEnumerator.GetSystem("Events");
 		EventSystem->RegisterEventHandler([this](void* e)
 		{
