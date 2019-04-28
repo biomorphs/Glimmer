@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include "render/camera.h"
-#include "math/glm_headers.h"
 #include "geometry.h"
 
 struct Light

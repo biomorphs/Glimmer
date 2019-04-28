@@ -60,17 +60,10 @@ void Glimmer::CreateScene()
 	SetupSceneScriptBindings();
 
 	// Load the scene
-	std::string sceneLuaText;
-	if (Kernel::FileIO::LoadTextFromFile("scene.lua", sceneLuaText))
+	std::string errorText;
+	if (!m_scriptSystem->RunScriptFromFile("scene.lua", errorText))
 	{
-		try
-		{
-			m_scriptSystem->RunScript(sceneLuaText.data());
-		}
-		catch (const sol::error& err)
-		{
-			SDE_LOG("Lua error in config.lua - %s", err.what());
-		}
+		SDE_LOG("Lua error in scene.lua - %s", errorText.data());
 	}
 
 	m_sceneDirty = true;
@@ -140,7 +133,6 @@ bool Glimmer::PreInit(Core::ISystemEnumerator& systemEnumerator)
 
 	// Set up cpu ray tracer
 	CpuRaytracer::Parameters params;
-	params.m_jobCount = 8;
 	params.m_jobSystem = jobSystem;
 	params.m_maxRecursion = 6;
 	params.m_image.m_dimensions = { c_outputSizeX, c_outputSizeY };

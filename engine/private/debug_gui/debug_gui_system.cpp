@@ -4,6 +4,7 @@ Matt Hoyle
 */
 #include "debug_gui_system.h"
 #include "debug_gui_render.h"
+#include "imgui_sdl_gl3_render.h"
 #include "graph_data_buffer.h"
 #include "sde/render_system.h"
 #include "render/mesh.h"
@@ -12,11 +13,13 @@ Matt Hoyle
 #include "render/material.h"
 #include "render/texture_source.h"
 #include "render/texture.h"
+#include "render/window.h"
+#include "render/device.h"
 #include "render/mesh_instance_render_pass.h"
 #include "input/input_system.h"
 #include "core/system_enumerator.h"
 #include "kernel/log.h"
-#include <imggui\imgui.h>
+#include <imgui\imgui.h>
 
 namespace DebugGui
 {
@@ -35,13 +38,6 @@ namespace DebugGui
 		m_renderSystem = (SDE::RenderSystem*)systemEnumerator.GetSystem("Render");
 		m_inputSystem = (Input::InputSystem*)systemEnumerator.GetSystem("Input");
 
-		// Setup render pass
-		m_renderPass = std::make_unique<Render::MeshInstanceRenderPass>();
-		m_renderPass->GetRenderState().m_blendingEnabled = true;
-		m_renderPass->GetRenderState().m_depthTestEnabled = false;
-		m_renderPass->GetRenderState().m_backfaceCullEnabled = false;
-		m_renderSystem->AddPass(*m_renderPass);
-
 		return true;
 	}
 
@@ -52,18 +48,12 @@ namespace DebugGui
 
 	bool DebugGuiSystem::PostInit()
 	{
+		ImGui::SdeImguiInit();
+		m_imguiPass = std::make_unique<ImguiSdlGL3RenderPass>(m_renderSystem->GetWindow(), m_renderSystem->GetDevice());
+		m_renderSystem->AddPass(*m_imguiPass);
+
 		float viewportWidth = (float)m_renderSystem->GetViewportWidth();
 		float viewportHeight = (float)m_renderSystem->GetViewportHeight();
-
-		// Create renderer
-		m_renderer = std::make_unique<DebugGuiRender>();
-		if (!m_renderer->Create(viewportWidth, viewportHeight))
-		{
-			return false;
-		}
-
-		// We push one early frame so we can offset rendering with 1 frame delay
-		ImGui::NewFrame();
 
 		return true;
 	}
@@ -161,13 +151,9 @@ namespace DebugGui
 
 	bool DebugGuiSystem::Tick()
 	{
-		m_renderer->RebuildMesh();		// Update UI mesh for last frame
-
-		// Submit last frame to renderer
-		m_renderer->SubmitToPass(*m_renderPass);
-
 		// Start next frame
 		UpdateImgGuiInputState();
+		m_imguiPass->NewFrame();
 		ImGui::NewFrame();
 
 		return true;
@@ -175,7 +161,7 @@ namespace DebugGui
 
 	void DebugGuiSystem::Shutdown()
 	{
-		ImGui::Shutdown();
-		m_renderer = nullptr;
+		m_imguiPass = nullptr;
+		ImGui::SdeImguiShutdown();
 	}
 }

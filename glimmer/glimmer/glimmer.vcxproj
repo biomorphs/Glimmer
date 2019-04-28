@@ -106,11 +106,13 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <EnableEnhancedInstructionSet />
       <ExceptionHandling>Sync</ExceptionHandling>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>$(SolutionDir)..\external\lua-5.3.5_Win32_vc15_lib\lua53.lib;$(SolutionDir)..\external\SDL2-2.0.1\lib\x64\SDL2.lib;$(OutputPath)ImgLib.lib;$(OutputPath)core.lib;$(OutputPath)debug_gui.lib;$(OutputPath)engine.lib;$(OutputPath)input.lib;$(OutputPath)kernel.lib;$(OutputPath)render.lib;$(OutputPath)sde.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LinkStatus>false</LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -132,6 +134,10 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>$(SolutionDir)..\external\lua-5.3.5_Win64_vc15_lib\lua53.lib;$(SolutionDir)..\external\glew-1.12.0-win32\glew-1.12.0\lib\Release\x64\glew32.lib;OpenGL32.Lib;$(SolutionDir)..\external\SDL2-2.0.1\lib\x64\SDL2.lib;$(SolutionDir)..\external\SDL2-2.0.1\lib\x64\SDL2main.lib;$(OutputPath)ImgLib.lib;$(OutputPath)core.lib;$(OutputPath)debug_gui.lib;$(OutputPath)engine.lib;$(OutputPath)input.lib;$(OutputPath)kernel.lib;$(OutputPath)render.lib;$(OutputPath)sde.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <LinkStatus>false</LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -148,6 +154,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <ExceptionHandling>Sync</ExceptionHandling>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -155,6 +162,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>$(SolutionDir)..\external\lua-5.3.5_Win32_vc15_lib\lua53.lib;$(SolutionDir)..\external\SDL2-2.0.1\lib\x64\SDL2.lib;$(OutputPath)ImgLib.lib;$(OutputPath)core.lib;$(OutputPath)debug_gui.lib;$(OutputPath)engine.lib;$(OutputPath)input.lib;$(OutputPath)kernel.lib;$(OutputPath)render.lib;$(OutputPath)sde.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LinkStatus>false</LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -170,6 +178,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <TreatWarningAsError>true</TreatWarningAsError>
       <ExceptionHandling>Sync</ExceptionHandling>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -177,6 +186,10 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>$(SolutionDir)..\external\lua-5.3.5_Win64_vc15_lib\lua53.lib;$(SolutionDir)..\external\glew-1.12.0-win32\glew-1.12.0\lib\Release\x64\glew32.lib;OpenGL32.Lib;$(SolutionDir)..\external\SDL2-2.0.1\lib\x64\SDL2.lib;$(SolutionDir)..\external\SDL2-2.0.1\lib\x64\SDL2main.lib;$(OutputPath)ImgLib.lib;$(OutputPath)core.lib;$(OutputPath)debug_gui.lib;$(OutputPath)engine.lib;$(OutputPath)input.lib;$(OutputPath)kernel.lib;$(OutputPath)render.lib;$(OutputPath)sde.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LinkStatus>false</LinkStatus>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

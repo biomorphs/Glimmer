@@ -12,21 +12,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\external\imgui-master\imggui\imconfig.h">
-      <Filter>private\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\imgui-master\imggui\imgui.h">
-      <Filter>private\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\imgui-master\imggui\stb_rect_pack.h">
-      <Filter>private\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\imgui-master\imggui\stb_textedit.h">
-      <Filter>private\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\imgui-master\imggui\stb_truetype.h">
-      <Filter>private\imgui</Filter>
-    </ClInclude>
     <ClInclude Include="public\debug_gui\debug_gui_system.h">
       <Filter>public</Filter>
     </ClInclude>
@@ -36,11 +21,17 @@
     <ClInclude Include="public\debug_gui\graph_data_buffer.h">
       <Filter>public</Filter>
     </ClInclude>
+    <ClInclude Include="..\external\imgui-1.69\imgui\imconfig.h" />
+    <ClInclude Include="..\external\imgui-1.69\imgui\imgui.h" />
+    <ClInclude Include="..\external\imgui-1.69\imgui\imgui_internal.h" />
+    <ClInclude Include="..\external\imgui-1.69\imgui\imstb_rectpack.h" />
+    <ClInclude Include="..\external\imgui-1.69\imgui\imstb_textedit.h" />
+    <ClInclude Include="..\external\imgui-1.69\imgui\imstb_truetype.h" />
+    <ClInclude Include="private\debug_gui\imgui_sdl_gl3_render.h" />
+    <ClInclude Include="..\external\imgui-1.69\imgui\examples\imgui_impl_opengl3.h" />
+    <ClInclude Include="..\external\imgui-1.69\imgui\examples\imgui_impl_sdl.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\external\imgui-master\imggui\imgui.cpp">
-      <Filter>private\imgui</Filter>
-    </ClCompile>
     <ClCompile Include="private\debug_gui\debug_gui_system.cpp">
       <Filter>private</Filter>
     </ClCompile>
@@ -50,5 +41,12 @@
     <ClCompile Include="private\debug_gui\graph_data_buffer.cpp">
       <Filter>private</Filter>
     </ClCompile>
+    <ClCompile Include="..\external\imgui-1.69\imgui\imgui.cpp" />
+    <ClCompile Include="..\external\imgui-1.69\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\external\imgui-1.69\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\external\imgui-1.69\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="private\debug_gui\imgui_sdl_gl3_render.cpp" />
+    <ClCompile Include="..\external\imgui-1.69\imgui\examples\imgui_impl_sdl.cpp" />
+    <ClCompile Include="..\external\imgui-1.69\imgui\examples\imgui_impl_opengl3.cpp" />
   </ItemGroup>
 </Project>

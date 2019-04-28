@@ -22,7 +22,7 @@ class CpuRaytracer
 public:
 	struct Parameters
 	{
-		int m_jobCount = 8;
+		int m_jobCount = 64;
 		int m_maxRecursion = 8;
 		SDE::JobSystem* m_jobSystem = nullptr;
 		ImageParameters m_image;

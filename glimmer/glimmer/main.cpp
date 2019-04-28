@@ -1,4 +1,3 @@
-#include "sde/asset_system.h"
 #include "sde/render_system.h"
 #include "sde/job_system.h"
 #include "sde/script_system.h"
@@ -16,8 +15,8 @@ public:
 		systemManager.RegisterSystem("Jobs", new SDE::JobSystem());
 		systemManager.RegisterSystem("Input", new Input::InputSystem());
 		systemManager.RegisterSystem("Script", new SDE::ScriptSystem());
-		systemManager.RegisterSystem("Glimmer", new Glimmer());
 		systemManager.RegisterSystem("DebugGui", new DebugGui::DebugGuiSystem());
+		systemManager.RegisterSystem("Glimmer", new Glimmer());
 		systemManager.RegisterSystem("Render", new SDE::RenderSystem());
 	}
 };

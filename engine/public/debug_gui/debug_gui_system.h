@@ -26,9 +26,15 @@ namespace Render
 	class MeshInstanceRenderPass;
 }
 
+namespace ImGui
+{
+	struct ImGuiContext;
+}
+
 namespace DebugGui
 {
 	class DebugGuiRender;
+	class ImguiSdlGL3RenderPass;
 	class GraphDataBuffer;
 	class DebugGuiSystem : public Core::ISystem
 	{
@@ -59,10 +65,12 @@ namespace DebugGui
 	private:
 		void UpdateImgGuiInputState();
 
+		ImGui::ImGuiContext* m_imguiContext;
 		Core::Timer m_timer;
 		Input::InputSystem* m_inputSystem;
 		SDE::RenderSystem* m_renderSystem;
 		std::unique_ptr<DebugGuiRender> m_renderer;
+		std::unique_ptr<ImguiSdlGL3RenderPass> m_imguiPass;
 		std::unique_ptr<Render::MeshInstanceRenderPass> m_renderPass;
 	};
 }

@@ -1,6 +1,5 @@
 #pragma once
 #include "core/system.h"
-#include "math/glm_headers.h"
 #include "render/camera.h"
 #include "traceboi.h"
 #include "cpu_raytracer.h"

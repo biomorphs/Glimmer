@@ -33,6 +33,8 @@ namespace SDE
 
 		inline uint32_t GetViewportWidth() { return m_initParams.m_windowWidth; }
 		inline uint32_t GetViewportHeight() { return m_initParams.m_windowHeight; }
+		inline Render::Window* GetWindow() { return m_window.get(); }
+		inline Render::Device* GetDevice() { return m_device.get(); }
 
 		// Pass one of these to set custom params before Initialise
 		struct InitialisationParams

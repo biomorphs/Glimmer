@@ -11,7 +11,7 @@ Matt Hoyle
 #include "render/texture.h"
 #include "render/mesh_builder.h"
 #include "render/mesh_instance_render_pass.h"
-#include <imggui\imgui.h>
+#include <imgui\imgui.h>
 #include "math/glm_headers.h"
 
 namespace DebugGui

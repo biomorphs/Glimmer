@@ -2,8 +2,6 @@
 #include <iostream>
 #include <stdint.h>
 #include <atomic>
-#include "math/glm_headers.h"
-#include "geometry.h"
 
 struct RenderParams
 {
@@ -26,7 +24,6 @@ glm::vec3 GeneratePrimaryRayDirection(const RenderParams& globals, glm::vec2 pix
 {
 	float x = (2.0f * (pixelPos.x + 0.5f) / (float)globals.m_imageDimensions.x - 1.0f) * globals.m_aspectRatio * globals.m_scale;
 	float y = (1.0f - 2.0f * (pixelPos.y + 0.5f) / (float)globals.m_imageDimensions.y) * globals.m_scale;
-	//glm::vec3 direction = (glm::vec3)(globals.m_cameraToWorld * glm::vec4(x, y, -1, 0));
 	glm::vec3 direction = (glm::mat3x3)globals.m_cameraToWorld * glm::vec3(x, y, -1);
 	direction = glm::normalize(direction);
 	return direction;
@@ -203,10 +200,8 @@ glm::vec3 CastRay(const Geometry::Ray& ray, const TraceParamaters& globals, int 
 				float specularPow = glm::pow(glm::max(0.0f, glm::dot(idealReflection, ray.m_direction)), 10.0f);
 				specular += /*shadow **/ l.m_diffuse * specularPow;
 			}
-
 			outColour = mixed + specular;
 		}
-		//outColour = hitNormal;
 	}
 	else
 	{

@@ -51,12 +51,6 @@
     <ClInclude Include="public\render\camera.h">
       <Filter>public</Filter>
     </ClInclude>
-    <ClInclude Include="public\render\material_asset.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="public\render\shader_program_asset.h">
-      <Filter>public</Filter>
-    </ClInclude>
     <ClInclude Include="public\render\dds_loader.h">
       <Filter>public</Filter>
     </ClInclude>
@@ -67,9 +61,6 @@
       <Filter>public</Filter>
     </ClInclude>
     <ClInclude Include="public\render\texture.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="public\render\texture_asset.h">
       <Filter>public</Filter>
     </ClInclude>
     <ClInclude Include="public\render\mesh_instance_render_pass.h">
@@ -104,12 +95,6 @@
     <ClCompile Include="private\render\mesh_builder.cpp">
       <Filter>private</Filter>
     </ClCompile>
-    <ClCompile Include="private\render\material_asset.cpp">
-      <Filter>private</Filter>
-    </ClCompile>
-    <ClCompile Include="private\render\shader_program_asset.cpp">
-      <Filter>private</Filter>
-    </ClCompile>
     <ClCompile Include="private\render\dds_loader.cpp">
       <Filter>private</Filter>
     </ClCompile>
@@ -117,9 +102,6 @@
       <Filter>private</Filter>
     </ClCompile>
     <ClCompile Include="private\render\texture.cpp">
-      <Filter>private</Filter>
-    </ClCompile>
-    <ClCompile Include="public\render\texture_asset.cpp">
       <Filter>private</Filter>
     </ClCompile>
     <ClCompile Include="private\render\mesh_instance_render_pass.cpp">
