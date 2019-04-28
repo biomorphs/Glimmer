@@ -24,7 +24,9 @@ namespace SDE
 		virtual ~ScriptSystem();
 
 		bool PreInit(Core::ISystemEnumerator& systemEnumerator);
+		bool Tick();
 		void Shutdown();
+
 		sol::state& Globals() { return *m_globalState; }
 		
 		void RunScriptFromFile(const char* filename);	// can throw sol::error

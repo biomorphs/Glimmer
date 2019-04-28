@@ -1,9 +1,9 @@
 local function printEntity(handle)
 	if(handle:IsValid() == true) then
-		entity = handle:GetEntity()
+		local entity = handle:GetEntity()
 		print("ID: ", entity:GetID(), ", Name: ", entity:GetName())
 		for i = 0, entity:ComponentCount()-1 do
-			cmp = entity:GetComponentByIndex(i)
+			local cmp = entity:GetComponentByIndex(i)
 			print("\t", cmp:GetTypeString())
 		end
 	else
@@ -11,23 +11,23 @@ local function printEntity(handle)
 	end
 end
 
-local world = myWorld
-local entityHandle = world:CreateEntity("entity1")
-printEntity(entityHandle)
+local function EntityTest()
+	local entityHandle = myWorld:CreateEntity("entity1")	
+	entityHandle:CreateComponent_TestComponent()
+	printEntity(entityHandle)
+	
+	myWorld:SpawnEntity(entityHandle)
 
-local entityHandle2 = world:CreateEntity("entity2")
-printEntity(entityHandle2)
+	for i = 0, 10 do
+		myWorld:Tick()
+	end
+    
+	 entityHandle:GetComponent_TestComponent():DoSomething()
+	 myWorld:DespawnEntity(entityHandle)
+    
+	for i = 0, 10 do
+		myWorld:Tick()
+	end
+end
 
-local entityHandle3 = entityHandle
-printEntity(entityHandle3)
-
-local failHandle = world:CreateEntity("entity1")
-printEntity(failHandle)
-
-local tc = entityHandle:GetEntity():CreateComponent_TestComponent()
-tc:Bark()
-printEntity(entityHandle)
-
-local tcmp = entityHandle:GetEntity():GetComponent_TestComponent()
-tcmp:Bark()
-print(tcmp)
+EntityTest()

@@ -69,3 +69,23 @@ EntityID Entity::GenerateID()
 	static Kernel::AtomicInt32 s_idCounter = 0;
 	return s_idCounter.Add(1);
 }
+
+void Entity::RegisterOnUnspawnCallback(OnUnspawnCallback fn)
+{
+	m_onUnspawnCb.RegisterCallback(fn);
+}
+
+void Entity::RegisterOnSpawnCallback(OnSpawnCallback fn)
+{
+	m_onSpawnCb.RegisterCallback(fn);
+}
+
+void Entity::OnSpawn()
+{
+	m_onSpawnCb();
+}
+
+void Entity::OnUnspawn()
+{
+	m_onUnspawnCb();
+}

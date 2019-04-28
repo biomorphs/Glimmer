@@ -3,6 +3,7 @@
 #include <string>
 #include <sol.hpp>
 #include "component.h"
+#include "callback_list.h"
 
 using EntityID = uint32_t;
 using EntityName = std::string;		// needs something better
@@ -22,7 +23,6 @@ public:
 	static constexpr EntityID InvalidID = -1;
 	EntityID GetID() const { return m_id; };
 
-	void SetName(std::string name)		{ m_name = name; }
 	std::string GetName() const			{ return m_name; }
 
 	void AddComponent(Component* c);		// takes ownership of the component memory
@@ -32,12 +32,29 @@ public:
 
 	template<class ScriptScope>
 	static inline void RegisterScriptType(ScriptScope&);	// registers this type in the scope parameter (either sol::state or sol::table, or your own)
+
+	// Entity lifetime handlers
+	using OnSpawnCallback = std::function<void()>;
+	void RegisterOnSpawnCallback(OnSpawnCallback fn);
+
+	using OnUnspawnCallback = std::function<void()>;
+	void RegisterOnUnspawnCallback(OnUnspawnCallback fn);
+
+	// Lifetime functions should only be called by the world
+	// Entity lifetime - CTor->OnSpawnOnTick->OnUnspawn->DTor
+	void OnSpawn();
+	void OnUnspawn();
+
 private:
 	static EntityID GenerateID();
 
 	EntityID m_id;		// id generated automatically
 	EntityName m_name;
+
 	std::vector<std::unique_ptr<Component>> m_components;
+
+	CallbackList<OnSpawnCallback> m_onSpawnCb;
+	CallbackList<OnUnspawnCallback> m_onUnspawnCb;
 };
 
 template<class ScriptScope>

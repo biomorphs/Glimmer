@@ -119,26 +119,34 @@ void Glimmer::InitRenderSystemFromConfig(SDE::RenderSystem& rs)
 class TestComponent : public Component
 {
 public:
-	TestComponent()
+	explicit TestComponent(EntityHandle& h)
+		: Component(h)
 	{
-		SDE_LOG("Hey there");
+		h.GetEntityPtr()->RegisterOnSpawnCallback([this]() { this->OnSpawned(); });
+		h.GetEntityPtr()->RegisterOnUnspawnCallback([this]() { this->OnUnspawned(); });
 	}
 	virtual ~TestComponent()
 	{
 		SDE_LOG("Bye");
 	}
-	virtual const char* GetTypeString() { return "TestComponent"; }
-	void Bark()
+	void DoSomething()
 	{
-		SDE_LOG("Woof!");
+		SDE_LOG("I'm doing something!");
 	}
 
-	template<class ScriptScope>
-	static inline void RegisterScriptType(ScriptScope& scope)
+	REGISTER_COMPONENT_TYPE(scope, TestComponent, DefaultFactory<TestComponent>(),
+		"DoSomething", &TestComponent::DoSomething);
+
+private:
+	void OnSpawned()
 	{
-		REGISTER_COMPONENT_SCRIPT_TYPE(scope, TestComponent,
-			"Bark", &TestComponent::Bark);
+		SDE_LOG("Hello! I (%s) just spawned! Look at that. %s!", GetEntity().GetEntityPtr()->GetName().c_str(), m_myBark.c_str());
 	}
+	void OnUnspawned()
+	{
+		SDE_LOG("Oh no! I (%s) am unspawning!", GetEntity().GetEntityPtr()->GetName().c_str());
+	}
+	std::string m_myBark = "woof!";
 };
 
 bool Glimmer::PreInit(Core::ISystemEnumerator& systemEnumerator)
@@ -167,16 +175,20 @@ bool Glimmer::PreInit(Core::ISystemEnumerator& systemEnumerator)
 	Component::RegisterScriptType(m_scriptSystem->Globals());
 	TestComponent::RegisterScriptType(m_scriptSystem->Globals());
 
-	World w;
-
-	m_scriptSystem->Globals()["myWorld"] = w;
-
-	std::string errorText;
-	if (!m_scriptSystem->RunScriptFromFile("entitytests.lua", errorText))
 	{
-		SDE_LOG("Lua error in entitytests.lua - %s", errorText.c_str());
+		World w;
+
+		m_scriptSystem->Globals()["myWorld"] = &w;		// pass the world by reference
+
+		std::string errorText;
+		if (!m_scriptSystem->RunScriptFromFile("entitytests.lua", errorText))
+		{
+			SDE_LOG("Lua error in entitytests.lua - %s", errorText.c_str());
+		}
+
+		//m_scriptSystem->Globals()["myWorld"] = nullptr;
+		m_scriptSystem->Globals().collect_garbage();
 	}
-	w = m_scriptSystem->Globals()["myWorld"].get<World>();
 
 	return true;
 }

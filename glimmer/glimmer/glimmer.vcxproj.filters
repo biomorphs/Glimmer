@@ -42,6 +42,9 @@
     <ClCompile Include="component.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="callback_list.inl">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="traceboi.h">
@@ -62,10 +65,13 @@
     <ClInclude Include="world.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="component.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="entity_handle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="component.h">
+    <ClInclude Include="callback_list.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

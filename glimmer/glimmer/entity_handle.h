@@ -16,7 +16,8 @@ public:
 	EntityHandle& operator=(const EntityHandle& other);
 	EntityHandle& operator=(EntityHandle&& other);
 
-	Entity* GetEntity() { return m_entity.get(); }
+	std::shared_ptr<Entity> GetEntity() { return m_entity; }
+	Entity* GetEntityPtr() { return m_entity.get(); }
 	bool IsValid() const { return m_entity != nullptr; }
 
 	template<class ScriptScope>
@@ -29,6 +30,6 @@ template<class ScriptScope>
 void EntityHandle::RegisterScriptType(ScriptScope& scope)
 {
 	scope.new_usertype<EntityHandle>("EntityHandle", sol::constructors<EntityHandle()>(),
-		"GetEntity", &EntityHandle::GetEntity,
+		"GetEntity", &EntityHandle::GetEntityPtr,
 		"IsValid", &EntityHandle::IsValid);
 }

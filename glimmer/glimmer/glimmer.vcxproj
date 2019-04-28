@@ -197,6 +197,9 @@
     <ClCompile Include="cpu_raytracer.cpp" />
     <ClCompile Include="entity.cpp" />
     <ClCompile Include="entity_handle.cpp" />
+    <ClInclude Include="callback_list.inl">
+      <FileType>Document</FileType>
+    </ClInclude>
     <ClCompile Include="geometry.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="glimmer.cpp" />
@@ -208,6 +211,7 @@
     <ClInclude Include="cpu_raytracer.h" />
     <ClInclude Include="entity.h" />
     <ClInclude Include="entity_handle.h" />
+    <ClInclude Include="callback_list.h" />
     <ClInclude Include="geometry.h" />
     <ClInclude Include="glimmer.h" />
     <ClInclude Include="traceboi.h" />

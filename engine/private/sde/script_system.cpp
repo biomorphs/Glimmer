@@ -71,6 +71,12 @@ namespace SDE
 		return true;
 	}
 
+	bool ScriptSystem::Tick()
+	{
+		m_globalState->collect_garbage();
+		return true;
+	}
+
 	void ScriptSystem::Shutdown()
 	{
 		m_globalState = nullptr;
