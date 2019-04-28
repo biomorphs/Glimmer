@@ -39,6 +39,7 @@ namespace DebugGui
 		m_renderSystem = (SDE::RenderSystem*)systemEnumerator.GetSystem("Render");
 		m_inputSystem = (Input::InputSystem*)systemEnumerator.GetSystem("Input");
 		auto EventSystem = (SDE::EventSystem*)systemEnumerator.GetSystem("Events");
+		EventSystem->RegisterEventHandler([this](void* e)
 		{
 			this->m_imguiPass->HandleEvent(e);
 		});
@@ -61,25 +62,6 @@ namespace DebugGui
 		float viewportHeight = (float)m_renderSystem->GetViewportHeight();
 
 		return true;
-	}
-
-	void DebugGuiSystem::UpdateImgGuiInputState()
-	{
-		//ImGuiIO& io = ImGui::GetIO();
-
-		//// Tick 
-		//static double s_lastTickTime = m_timer.GetSeconds();
-		//double thisTime = m_timer.GetSeconds();
-		//float thisTickTime = (float)(thisTime - s_lastTickTime);
-		//s_lastTickTime = thisTime;
-		//io.DeltaTime = thisTickTime > 0.0 ? thisTickTime : (float)(1.0f / 60.0f);
-
-		//// Setup inputs
-		//const auto& mouseState = m_inputSystem->MouseState();
-		//io.MousePos = ImVec2((float)mouseState.m_cursorX, (float)mouseState.m_cursorY);
-		//io.MouseDown[0] = (mouseState.m_buttonState & Input::MouseButtons::LeftButton) != 0;
-		//io.MouseDown[1] = (mouseState.m_buttonState & Input::MouseButtons::MiddleButton) != 0;
-		//io.MouseDown[2] = (mouseState.m_buttonState & Input::MouseButtons::RightButton) != 0;
 	}
 
 	void DebugGuiSystem::BeginWindow(bool& windowOpen, const char* windowName, glm::vec2 size)
@@ -157,7 +139,6 @@ namespace DebugGui
 	bool DebugGuiSystem::Tick()
 	{
 		// Start next frame
-		UpdateImgGuiInputState();
 		m_imguiPass->NewFrame();
 		ImGui::NewFrame();
 

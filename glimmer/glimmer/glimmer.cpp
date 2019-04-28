@@ -1,6 +1,5 @@
 #include "glimmer.h"
 #include "kernel/time.h"
-#include "kernel/file_io.h"
 #include "kernel/log.h"
 #include "core/system_enumerator.h"
 #include "debug_gui/debug_gui_system.h"
@@ -242,8 +241,6 @@ bool Glimmer::RenderFrame()
 
 bool Glimmer::Tick()
 {
-	Core::Timer jobTimer;
-
 	UpdateControls();
 	UpdateSceneControls();
 

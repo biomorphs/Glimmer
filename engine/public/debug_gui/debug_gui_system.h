@@ -5,7 +5,6 @@ Matt Hoyle
 #pragma once
 
 #include "core/system.h"
-#include "core/timer.h"
 #include "kernel/base_types.h"
 #include "math/glm_headers.h"
 #include <memory>
@@ -63,10 +62,6 @@ namespace DebugGui
 		bool ColourEdit(const char* label, glm::vec4& c, bool showAlpha = true);
 
 	private:
-		void UpdateImgGuiInputState();
-
-		ImGui::ImGuiContext* m_imguiContext;
-		Core::Timer m_timer;
 		Input::InputSystem* m_inputSystem;
 		SDE::RenderSystem* m_renderSystem;
 		std::unique_ptr<DebugGuiRender> m_renderer;
