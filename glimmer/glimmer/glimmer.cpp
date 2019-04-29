@@ -16,8 +16,8 @@ public:
 	explicit TestComponent(EntityHandle& h)
 		: Component(h)
 	{
-		h.GetEntityPtr()->RegisterOnSpawnCallback([this]() { this->OnSpawned(); });
-		h.GetEntityPtr()->RegisterOnUnspawnCallback([this]() { this->OnUnspawned(); });
+		h->RegisterOnSpawnCallback([this]() { this->OnSpawned(); });
+		h->RegisterOnUnspawnCallback([this]() { this->OnUnspawned(); });
 	}
 	void DoSomething()
 	{
@@ -28,11 +28,11 @@ public:
 private:
 	void OnSpawned()
 	{
-		SDE_LOG("Hello! I (%s) just spawned! Look at that. %s!", GetEntity().GetEntityPtr()->GetName().c_str(), m_myBark.c_str());
+		SDE_LOG("Hello! I (%s) just spawned! Look at that. %s!", GetEntity()->GetName().c_str(), m_myBark.c_str());
 	}
 	void OnUnspawned()
 	{
-		SDE_LOG("Oh no! I (%s) am unspawning!", GetEntity().GetEntityPtr()->GetName().c_str());
+		SDE_LOG("Oh no! I (%s) am unspawning!", GetEntity()->GetName().c_str());
 	}
 	std::string m_myBark = "woof!";
 };

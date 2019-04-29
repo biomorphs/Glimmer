@@ -27,10 +27,10 @@ namespace SDE
 		if (render.valid())
 		{
 			auto resolution = render["Resolution"];
-			m_initParams.m_windowWidth = resolution[1].get_or(1280);
-			m_initParams.m_windowHeight = resolution[2].get_or(720);
-			m_initParams.m_fullscreen = render["Fullscreen"].get_or(false);
-			m_initParams.m_windowTitle = render["WindowTitle"].get_or(std::string("SDE"));
+			m_config.m_windowWidth = resolution[1].get_or(1280);
+			m_config.m_windowHeight = resolution[2].get_or(720);
+			m_config.m_fullscreen = render["Fullscreen"].get_or(false);
+			m_config.m_windowTitle = render["WindowTitle"].get_or(std::string("SDE"));
 		}
 	}
 
@@ -44,8 +44,8 @@ namespace SDE
 
 	bool RenderSystem::Initialise()
 	{
-		Render::Window::Properties winProps(m_initParams.m_windowTitle, m_initParams.m_windowWidth, m_initParams.m_windowHeight);
-		winProps.m_flags = m_initParams.m_fullscreen ? Render::Window::CreateFullscreen : 0;
+		Render::Window::Properties winProps(m_config.m_windowTitle, m_config.m_windowWidth, m_config.m_windowHeight);
+		winProps.m_flags = m_config.m_fullscreen ? Render::Window::CreateFullscreen : 0;
 		m_window = std::make_unique<Render::Window>(winProps);
 		if (!m_window)
 		{

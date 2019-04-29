@@ -55,7 +55,7 @@ struct DefaultFactory
 			entityNS["CreateComponent_" #c] = factory;						\
 			entityNS["GetComponent_" #c] = [](EntityHandle& e)				\
 			{																\
-				return (c*)e.GetEntityPtr()->GetComponentByType(#c);		\
+				return (c*)e->GetComponentByType(#c);		\
 			};																\
 		}	\
 	}

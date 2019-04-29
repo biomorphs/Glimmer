@@ -19,6 +19,10 @@ public:
 	std::shared_ptr<Entity> GetEntity() { return m_entity; }
 	Entity* GetEntityPtr() { return m_entity.get(); }
 	bool IsValid() const { return m_entity != nullptr; }
+	Entity* operator*() { return m_entity.get(); }
+	const Entity* operator*() const { return m_entity.get(); }
+	Entity* operator->() { return m_entity.get(); }
+	const Entity* operator->() const { return m_entity.get(); }
 
 	template<class ScriptScope>
 	static inline void RegisterScriptType(ScriptScope&);

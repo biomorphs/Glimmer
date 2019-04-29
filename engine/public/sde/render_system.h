@@ -55,7 +55,7 @@ namespace SDE
 			bool m_fullscreen = false;
 		};
 
-		Config m_initParams;
+		Config m_config;
 		glm::vec4 m_clearColour;
 		std::vector<Render::RenderPass*> m_passes;
 		std::unique_ptr<Render::Window> m_window;
