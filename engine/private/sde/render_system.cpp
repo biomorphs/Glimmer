@@ -4,8 +4,10 @@ Matt Hoyle
 */
 #include "render_system.h"
 #include "kernel/assert.h"
+#include "core/system_enumerator.h"
 #include "render/window.h"
 #include "render/device.h"
+#include "sde/config_system.h"
 
 namespace SDE
 {
@@ -18,10 +20,26 @@ namespace SDE
 	{
 	}
 
-	uint32_t RenderSystem::AddPass(Render::RenderPass& pass)
+	void RenderSystem::LoadConfig(ConfigSystem* cfg)
 	{
-		m_passes.push_back(&pass);
-		return (uint32_t)(m_passes.size() - 1);
+		auto values = cfg->Values();
+		auto render = values["Render"];
+		if (render.valid())
+		{
+			auto resolution = render["Resolution"];
+			m_initParams.m_windowWidth = resolution[1].get_or(1280);
+			m_initParams.m_windowHeight = resolution[2].get_or(720);
+			m_initParams.m_fullscreen = render["Fullscreen"].get_or(false);
+			m_initParams.m_windowTitle = render["WindowTitle"].get_or(std::string("SDE"));
+		}
+	}
+
+	bool RenderSystem::PreInit(Core::ISystemEnumerator& systemEnumerator)
+	{
+		auto configSystem = (SDE::ConfigSystem*)systemEnumerator.GetSystem("Config");
+		LoadConfig(configSystem);
+
+		return true;
 	}
 
 	bool RenderSystem::Initialise()
@@ -71,5 +89,11 @@ namespace SDE
 		m_passes.clear();
 		m_device = nullptr;
 		m_window = nullptr;
+	}
+
+	uint32_t RenderSystem::AddPass(Render::RenderPass& pass)
+	{
+		m_passes.push_back(&pass);
+		return (uint32_t)(m_passes.size() - 1);
 	}
 }

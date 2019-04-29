@@ -45,9 +45,6 @@ namespace DebugGui
 		m_imguiPass = std::make_unique<ImguiSdlGL3RenderPass>(m_renderSystem->GetWindow(), m_renderSystem->GetDevice());
 		m_renderSystem->AddPass(*m_imguiPass);
 
-		float viewportWidth = (float)m_renderSystem->GetViewportWidth();
-		float viewportHeight = (float)m_renderSystem->GetViewportHeight();
-
 		return true;
 	}
 

@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="EntitySystem">
+      <UniqueIdentifier>{1223ea96-f0e1-428b-9b02-65b6808fcc9d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="traceboi.cpp">
@@ -21,29 +24,26 @@
     <ClCompile Include="geometry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cpu_raytracer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="glimmer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="entity.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="world.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="entity_handle.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="component.cpp">
+      <Filter>EntitySystem</Filter>
+    </ClCompile>
+    <ClCompile Include="entity_handle.cpp">
+      <Filter>EntitySystem</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu_raytracer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="callback_list.inl">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="entity.cpp">
+      <Filter>EntitySystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -59,20 +59,23 @@
     <ClInclude Include="glimmer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="entity.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="world.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="callback_list.inl">
+      <Filter>EntitySystem</Filter>
+    </ClInclude>
     <ClInclude Include="component.h">
-      <Filter>Header Files</Filter>
+      <Filter>EntitySystem</Filter>
+    </ClInclude>
+    <ClInclude Include="entity.h">
+      <Filter>EntitySystem</Filter>
     </ClInclude>
     <ClInclude Include="entity_handle.h">
-      <Filter>Header Files</Filter>
+      <Filter>EntitySystem</Filter>
     </ClInclude>
     <ClInclude Include="callback_list.h">
-      <Filter>Header Files</Filter>
+      <Filter>EntitySystem</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

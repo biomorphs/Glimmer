@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/system.h"
 #include "traceboi.h"
 #include <memory>
 #include <atomic>
@@ -11,9 +12,15 @@ namespace Render
 	class Camera;
 }
 
+namespace DebugGui
+{
+	class DebugGuiSystem;
+}
+
 namespace SDE
 {
 	class JobSystem;
+	class ScriptSystem;
 }
 
 // Owns an opengl texture + handles rendering a scene on multiple cores
@@ -60,4 +67,30 @@ private:
 
 	std::atomic<double> m_traceStartTime;		// when did the current trace start
 	std::atomic<double> m_lastTraceTime;		// how long did the last trace take
+};
+
+class CpuRaytracerSystem : public Core::ISystem
+{
+public:
+	CpuRaytracerSystem() = default;
+	virtual ~CpuRaytracerSystem() = default;
+
+	virtual bool PreInit(Core::ISystemEnumerator& systemEnumerator);
+	virtual bool PostInit();
+	virtual bool Tick();
+	virtual void Shutdown();
+
+private:
+	void CreateScene();
+
+	void UpdateControls();
+	void UpdateSceneControls();
+
+	Scene m_scene;
+	Render::Camera m_camera;
+	std::unique_ptr<CpuRaytracer> m_cpuTracer;
+
+	bool m_isPaused = false;
+	DebugGui::DebugGuiSystem* m_debugGui = nullptr;
+	SDE::ScriptSystem* m_scriptSystem = nullptr;
 };

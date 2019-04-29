@@ -1,5 +1,6 @@
 #include "entity.h"
 #include "kernel/atomics.h"
+#include "kernel/assert.h"
 
 Entity::Entity()
 {
@@ -61,6 +62,7 @@ Component* Entity::GetComponentByType(const char* type)
 
 void Entity::AddComponent(Component* c)
 {
+	SDE_ASSERT(GetComponentByType(c->GetTypeString()) == nullptr, "Adding duplicate component type!");
 	m_components.emplace_back(std::move(c));
 }
 

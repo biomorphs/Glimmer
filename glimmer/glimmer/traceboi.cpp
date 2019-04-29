@@ -218,29 +218,32 @@ void WritePixel(uint32_t* buffer, glm::ivec2 dims, glm::ivec2 pos, glm::vec3 col
 	buffer[pixelIndex] = quantised.r | quantised.g << 8 | quantised.b << 16 | 0xff000000;
 }
 
-void TraceMeSomethingNice(const TraceParamaters& parameters)
+namespace TraceBoi
 {
-	const glm::ivec2 imageMin = parameters.outputOrigin;
-	const glm::ivec2 imageMax = parameters.outputOrigin + parameters.outputDimensions;
-
-	RenderParams globals;
-	globals.m_fov = parameters.camera.FOV();
-	globals.m_scale = tan(glm::radians(globals.m_fov * 0.5f));
-	globals.m_imageDimensions = parameters.imageDimensions;
-	globals.m_aspectRatio = GetAspectRatio(globals);
-	globals.m_cameraToWorld = glm::inverse(parameters.camera.ViewMatrix());
-	glm::vec3 origin = (glm::vec3)(globals.m_cameraToWorld * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-	globals.m_maxRecursions = parameters.maxRecursions;
-
-	Geometry::Ray primaryRay;
-	primaryRay.m_origin = origin;
-	for (int y = imageMin.y; y < imageMax.y; ++y)
+	void TraceMeSomethingNice(const TraceParamaters& parameters)
 	{
-		for (int x = imageMin.x; x < imageMax.x; ++x)
+		const glm::ivec2 imageMin = parameters.outputOrigin;
+		const glm::ivec2 imageMax = parameters.outputOrigin + parameters.outputDimensions;
+
+		RenderParams globals;
+		globals.m_fov = parameters.camera.FOV();
+		globals.m_scale = tan(glm::radians(globals.m_fov * 0.5f));
+		globals.m_imageDimensions = parameters.imageDimensions;
+		globals.m_aspectRatio = GetAspectRatio(globals);
+		globals.m_cameraToWorld = glm::inverse(parameters.camera.ViewMatrix());
+		glm::vec3 origin = (glm::vec3)(globals.m_cameraToWorld * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+		globals.m_maxRecursions = parameters.maxRecursions;
+
+		Geometry::Ray primaryRay;
+		primaryRay.m_origin = origin;
+		for (int y = imageMin.y; y < imageMax.y; ++y)
 		{
-			primaryRay.m_direction = GeneratePrimaryRayDirection(globals, { (float)x, (float)y });
-			glm::vec3 outColour = CastRay(primaryRay, parameters, 0);
-			WritePixel(parameters.outputBuffer.data(), parameters.imageDimensions, { x, y }, outColour);
+			for (int x = imageMin.x; x < imageMax.x; ++x)
+			{
+				primaryRay.m_direction = GeneratePrimaryRayDirection(globals, { (float)x, (float)y });
+				glm::vec3 outColour = CastRay(primaryRay, parameters, 0);
+				WritePixel(parameters.outputBuffer.data(), parameters.imageDimensions, { x, y }, outColour);
+			}
 		}
 	}
 }

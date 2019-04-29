@@ -20,6 +20,8 @@ namespace Render
 
 namespace SDE
 {
+	class ConfigSystem;
+
 	// Main renderer. Runs on the main thread and handles
 	// collection of render primitives, and submission to GPU
 	class RenderSystem : public Core::ISystem
@@ -31,23 +33,10 @@ namespace SDE
 		uint32_t AddPass(Render::RenderPass& pass);
 		Render::RenderPass& GetPass(uint32_t passId);
 
-		inline uint32_t GetViewportWidth() { return m_initParams.m_windowWidth; }
-		inline uint32_t GetViewportHeight() { return m_initParams.m_windowHeight; }
 		inline Render::Window* GetWindow() { return m_window.get(); }
 		inline Render::Device* GetDevice() { return m_device.get(); }
 
-		// Pass one of these to set custom params before Initialise
-		struct InitialisationParams
-		{
-			InitialisationParams(uint32_t w = 1280, uint32_t h = 720, bool fs = false, std::string title = "SDE")
-				: m_windowWidth(w), m_windowHeight(h), m_fullscreen(fs), m_windowTitle(title)	{ }
-			uint32_t m_windowWidth;
-			uint32_t m_windowHeight;
-			std::string m_windowTitle;
-			bool m_fullscreen;
-		};
-		void SetInitialiseParams(const InitialisationParams& p) { m_initParams = p; }
-
+		bool PreInit(Core::ISystemEnumerator& systemEnumerator);
 		bool Initialise();		// Window and device are created here
 		bool PostInit();		// Window made visible
 		bool Tick();			// All passes are drawn here
@@ -56,7 +45,17 @@ namespace SDE
 		inline void SetClearColour(const glm::vec4& c) { m_clearColour = c; }
 
 	private:
-		InitialisationParams m_initParams;
+		void LoadConfig(ConfigSystem* cfg);
+
+		struct Config
+		{
+			uint32_t m_windowWidth = 1280;
+			uint32_t m_windowHeight = 720;
+			std::string m_windowTitle = "SDE";
+			bool m_fullscreen = false;
+		};
+
+		Config m_initParams;
 		glm::vec4 m_clearColour;
 		std::vector<Render::RenderPass*> m_passes;
 		std::unique_ptr<Render::Window> m_window;

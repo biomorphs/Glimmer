@@ -7,6 +7,7 @@ Matt Hoyle
 #include "kernel/file_io.h"
 #include "kernel/log.h"
 #include "core/system_enumerator.h"
+#include "sde/script_system.h"
 #include <sol.hpp>
 
 namespace SDE
@@ -39,6 +40,7 @@ namespace SDE
 		m_scriptSystem = (SDE::ScriptSystem*)systemEnumerator.GetSystem("Script");
 		m_scriptSystem->Globals().create_named_table("Config");
 		LoadConfigFile("config.lua");
+
 		return true;
 	}
 

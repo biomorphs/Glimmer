@@ -2,6 +2,44 @@
 #include <sol.hpp>
 #include "entity_handle.h"
 
+// Component Base Class
+// To add a new component (e.g. YourComponentType) you MUST:
+//	- add REGISTER_COMPONENT_TYPE(YourComponentType) to the class declaration
+//	- call YourComponentType::RegisterScriptType with a script context
+//		this registers factory + getter for entity handle in scripts
+//			EntityHandle:GetComponent_YourComponentType
+//			EntityHandle::CreateComponent_YourComponentType
+class Component
+{
+public:
+	explicit Component(EntityHandle& e);
+	Component(Component&& other) = default;
+	Component(const Component&) = default;
+	virtual ~Component() = default;
+	virtual const char* GetTypeString() { return "Component"; }
+
+	template<class ScriptScope>
+	static inline void RegisterScriptType(ScriptScope&);
+
+	EntityHandle GetEntity() const { return EntityHandle(m_parent.lock()); }
+
+protected:
+	Component() = default;				// cannot be instantiated
+	std::weak_ptr<Entity> m_parent;		// weak ptr so we don't extend lifetime of the parent (the parent owns us)
+};
+
+// Default factory used for components with no system
+template<class ComponentType>
+struct DefaultFactory
+{
+	class Component* operator()(EntityHandle& e)
+	{
+		class Component* cmp = new ComponentType(e);
+		e.GetEntityPtr()->AddComponent(cmp);
+		return cmp;
+	}
+};
+
 // Sigh, can't think of a better way right now
 // Defines GetTypeString() for you and binds it to script
 // Registers component user type with sol and adds EntityHandle.CreateComponent_*/GetComponent_* in lua
@@ -21,40 +59,6 @@
 			};																\
 		}	\
 	}
-
-class Component;
-using ComponentFactory = std::function<Component*(EntityHandle&)>;
-
-// Default factory used for components with no system
-template<class ComponentType>
-struct DefaultFactory 
-{
-	Component* operator()(EntityHandle& e)
-	{
-		Component* cmp = new ComponentType(e);
-		e.GetEntityPtr()->AddComponent(cmp);
-		return cmp;
-	}		
-};
-
-class Component
-{
-public:
-	explicit Component(EntityHandle& e);
-	Component(Component&& other) = default;
-	Component(const Component&) = default;
-	virtual ~Component() = default;
-	virtual const char* GetTypeString() { return "Component"; }
-
-	template<class ScriptScope>
-	static inline void RegisterScriptType(ScriptScope&);
-
-	EntityHandle GetEntity() const { return EntityHandle(m_parent.lock()); }
-
-protected:
-	Component() = default;				// cannot be instantiated
-	std::weak_ptr<Entity> m_parent;		// weak ptr so we don't extend lifetime of the parent (the parent owns us)
-};
 
 // Scripts can still access Component base class members
 template<class ScriptScope>

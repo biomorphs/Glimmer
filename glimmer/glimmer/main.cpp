@@ -8,6 +8,7 @@
 #include "input/input_system.h"
 #include "core/system_registrar.h"
 #include "glimmer.h"
+#include "cpu_raytracer.h"
 
 class SystemRegistration : public Engine::IAppSystemRegistrar
 {
@@ -21,6 +22,7 @@ public:
 		systemManager.RegisterSystem("Config", new SDE::ConfigSystem());
 		systemManager.RegisterSystem("DebugGui", new DebugGui::DebugGuiSystem());
 		systemManager.RegisterSystem("Glimmer", new Glimmer());
+		systemManager.RegisterSystem("CpuRaytracer", new CpuRaytracerSystem());
 		systemManager.RegisterSystem("Render", new SDE::RenderSystem());
 	}
 };
