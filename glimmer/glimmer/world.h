@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <vector>
 #include <sol.hpp>
+#include "serialisation.h"
 #include "entity.h"
 #include "entity_handle.h"
 
@@ -11,6 +12,8 @@ public:
 	World() = default;
 	~World();
 	World(const World& other) = default;
+
+	SDE_SERIALISED_CLASS();
 
 	void Tick();
 
@@ -33,7 +36,19 @@ private:
 	std::vector<std::shared_ptr<Entity>> m_spawnList;		// waiting to spawn on next tick
 	std::vector<std::shared_ptr<Entity>> m_unspawnList;		// waiting to unspawn on next tick
 	std::vector<std::shared_ptr<Entity>> m_activeList;		// entities active in the world
+
+	enum Version {
+		Version_0 = 0
+	};
+	const Version c_minSupportedVersion = Version_0;
+	const Version c_currentVersion = Version_0;
 };
+
+SDE_SERIALISE_BEGIN(World)
+	SDE_SERIALISE_PROPERTY("Version", c_currentVersion)
+	SDE_SERIALISE_PROPERTY("SpawningEntities", m_spawnList)
+	SDE_SERIALISE_PROPERTY("ActiveEntities", m_activeList)
+SDE_SERIALISE_END()
 
 template<class ScriptScope>
 void World::RegisterScriptType(ScriptScope& scope)

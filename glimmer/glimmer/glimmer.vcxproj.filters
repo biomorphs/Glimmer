@@ -16,6 +16,9 @@
     <Filter Include="EntitySystem">
       <UniqueIdentifier>{1223ea96-f0e1-428b-9b02-65b6808fcc9d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Serialisation">
+      <UniqueIdentifier>{62c36da9-416e-4aa4-b770-39b2006a3e49}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="traceboi.cpp">
@@ -30,9 +33,6 @@
     <ClCompile Include="glimmer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="world.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="component.cpp">
       <Filter>EntitySystem</Filter>
     </ClCompile>
@@ -43,6 +43,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="entity.cpp">
+      <Filter>EntitySystem</Filter>
+    </ClCompile>
+    <ClCompile Include="serialisation.inl">
+      <Filter>Serialisation</Filter>
+    </ClCompile>
+    <ClCompile Include="world.cpp">
       <Filter>EntitySystem</Filter>
     </ClCompile>
   </ItemGroup>
@@ -59,9 +65,6 @@
     <ClInclude Include="glimmer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="world.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="callback_list.inl">
       <Filter>EntitySystem</Filter>
     </ClInclude>
@@ -75,6 +78,12 @@
       <Filter>EntitySystem</Filter>
     </ClInclude>
     <ClInclude Include="callback_list.h">
+      <Filter>EntitySystem</Filter>
+    </ClInclude>
+    <ClInclude Include="serialisation.h">
+      <Filter>Serialisation</Filter>
+    </ClInclude>
+    <ClInclude Include="world.h">
       <Filter>EntitySystem</Filter>
     </ClInclude>
   </ItemGroup>

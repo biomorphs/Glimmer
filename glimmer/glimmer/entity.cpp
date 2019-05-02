@@ -24,7 +24,6 @@ Entity& Entity::operator=(Entity&& other)
 	return *this;
 }
 
-
 Entity::Entity(const Entity& other)
 {
 	m_id = GenerateID();	

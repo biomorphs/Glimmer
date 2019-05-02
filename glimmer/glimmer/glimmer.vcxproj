@@ -74,25 +74,25 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)temp\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)..\external\lua-5.3.5_Win64_vc15_lib\include;$(SolutionDir)..\external\sol2-2.20.6\sol;$(SolutionDir)..\external\sol2-2.20.6\;$(SolutionDir)..\engine\public;$(SolutionDir)..\external\glm;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\external\json-3.6.1\include;$(SolutionDir)..\external\lua-5.3.5_Win64_vc15_lib\include;$(SolutionDir)..\external\sol2-2.20.6\sol;$(SolutionDir)..\external\sol2-2.20.6\;$(SolutionDir)..\engine\public;$(SolutionDir)..\external\glm;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)temp\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)..\external\lua-5.3.5_Win64_vc15_lib\include;$(SolutionDir)..\external\sol2-2.20.6\sol;$(SolutionDir)..\external\sol2-2.20.6\;$(SolutionDir)..\engine\public;$(SolutionDir)..\external\glm;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\external\json-3.6.1\include;$(SolutionDir)..\external\lua-5.3.5_Win64_vc15_lib\include;$(SolutionDir)..\external\sol2-2.20.6\sol;$(SolutionDir)..\external\sol2-2.20.6\;$(SolutionDir)..\engine\public;$(SolutionDir)..\external\glm;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)temp\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)..\external\lua-5.3.5_Win64_vc15_lib\include;$(SolutionDir)..\external\sol2-2.20.6\sol;$(SolutionDir)..\external\sol2-2.20.6\;$(SolutionDir)..\engine\public;$(SolutionDir)..\external\glm;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\external\json-3.6.1\include;$(SolutionDir)..\external\lua-5.3.5_Win64_vc15_lib\include;$(SolutionDir)..\external\sol2-2.20.6\sol;$(SolutionDir)..\external\sol2-2.20.6\;$(SolutionDir)..\engine\public;$(SolutionDir)..\external\glm;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)temp\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)..\external\lua-5.3.5_Win64_vc15_lib\include;$(SolutionDir)..\external\sol2-2.20.6\sol;$(SolutionDir)..\external\sol2-2.20.6\;$(SolutionDir)..\engine\public;$(SolutionDir)..\external\glm;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\external\json-3.6.1\include;$(SolutionDir)..\external\lua-5.3.5_Win64_vc15_lib\include;$(SolutionDir)..\external\sol2-2.20.6\sol;$(SolutionDir)..\external\sol2-2.20.6\;$(SolutionDir)..\engine\public;$(SolutionDir)..\external\glm;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -203,6 +203,9 @@
     <ClCompile Include="geometry.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="glimmer.cpp" />
+    <ClInclude Include="serialisation.inl">
+      <FileType>Document</FileType>
+    </ClInclude>
     <ClCompile Include="traceboi.cpp" />
     <ClCompile Include="world.cpp" />
   </ItemGroup>
@@ -214,6 +217,7 @@
     <ClInclude Include="callback_list.h" />
     <ClInclude Include="geometry.h" />
     <ClInclude Include="glimmer.h" />
+    <ClInclude Include="serialisation.h" />
     <ClInclude Include="traceboi.h" />
     <ClInclude Include="world.h" />
   </ItemGroup>

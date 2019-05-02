@@ -13,6 +13,7 @@
 class TestComponent : public Component
 {
 public:
+	TestComponent() = default;
 	explicit TestComponent(EntityHandle& h)
 		: Component(h)
 	{
@@ -23,8 +24,13 @@ public:
 	{
 		SDE_LOG("I'm doing something!");
 	}
-	REGISTER_COMPONENT_TYPE(scope, TestComponent, DefaultFactory<TestComponent>(),
+
+	void changeWoof() { m_myBark = "no more woofs"; }
+
+	REGISTER_COMPONENT_TYPE(scope, 
+		TestComponent, DefaultFactory<TestComponent>(),
 		"DoSomething", &TestComponent::DoSomething);
+	SDE_SERIALISED_CLASS();
 private:
 	void OnSpawned()
 	{
@@ -36,6 +42,10 @@ private:
 	}
 	std::string m_myBark = "woof!";
 };
+
+SDE_SERIALISE_BEGIN(TestComponent)
+SDE_SERIALISE_PROPERTY("Bark", m_myBark);
+SDE_SERIALISE_END()
 
 Glimmer::Glimmer()
 {
@@ -61,13 +71,26 @@ bool Glimmer::PreInit(Core::ISystemEnumerator& systemEnumerator)
 	{
 		World w;
 
-		m_scriptSystem->Globals()["myWorld"] = &w;		// pass the world by reference
+		auto eh = w.CreateEntity("Player1");
+		eh->AddComponent(new TestComponent(eh));
+		((TestComponent*)eh->GetComponentByType("TestComponent"))->changeWoof();
+		w.SpawnEntity(eh);		
 
+		m_scriptSystem->Globals()["myWorld"] = &w;		// pass the world by reference
 		std::string errorText;
 		if (!m_scriptSystem->RunScriptFromFile("entitytests.lua", errorText))
 		{
 			SDE_LOG("Lua error in entitytests.lua - %s", errorText.c_str());
 		}
+
+		/////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////
+		//////TODO
+		//////FIX SERIALISE FOR INHERITED OBJECTS (MAKE VIRTUAL?)
+
+		SerialiseToJson sj;
+		w.Serialise<SerialiseToJson>(sj);
+		printf(sj.m_json.dump(2).c_str());
 
 		m_scriptSystem->Globals()["myWorld"] = nullptr;	// going out of scope now
 	}

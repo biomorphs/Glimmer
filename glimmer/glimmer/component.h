@@ -1,5 +1,6 @@
 #pragma once
 #include <sol.hpp>
+#include "serialisation.h"
 #include "entity_handle.h"
 
 // Component Base Class
@@ -16,17 +17,23 @@ public:
 	Component(Component&& other) = default;
 	Component(const Component&) = default;
 	virtual ~Component() = default;
-	virtual const char* GetTypeString() { return "Component"; }
+	virtual const char* GetTypeString() const { return "Component"; }
 
 	template<class ScriptScope>
 	static inline void RegisterScriptType(ScriptScope&);
 
 	EntityHandle GetEntity() const { return EntityHandle(m_parent.lock()); }
 
+	SDE_SERIALISED_CLASS();
+
 protected:
 	Component() = default;				// cannot be instantiated
 	std::weak_ptr<Entity> m_parent;		// weak ptr so we don't extend lifetime of the parent (the parent owns us)
 };
+
+SDE_SERIALISE_BEGIN(Component)
+SDE_SERIALISE_PROPERTY("Type", GetTypeString());
+SDE_SERIALISE_END()
 
 // Default factory used for components with no system
 template<class ComponentType>
@@ -44,7 +51,7 @@ struct DefaultFactory
 // Defines GetTypeString() for you and binds it to script
 // Registers component user type with sol and adds EntityHandle.CreateComponent_*/GetComponent_* in lua
 #define REGISTER_COMPONENT_TYPE(scope,c,factory,...)	\
-	virtual const char* GetTypeString() { return #c; }			\
+	virtual const char* GetTypeString() const { return #c; }			\
 	template<class ScriptScope>	\
 	static inline void RegisterScriptType(ScriptScope& scope)	\
 	{	\

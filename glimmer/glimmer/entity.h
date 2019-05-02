@@ -3,6 +3,7 @@
 #include <string>
 #include <sol.hpp>
 #include "component.h"
+#include "serialisation.h"
 #include "callback_list.h"
 
 using EntityID = uint32_t;
@@ -19,6 +20,8 @@ public:
 	explicit Entity(std::string);
 	Entity& operator=(Entity&&);
 	Entity& operator=(const Entity&);
+
+	SDE_SERIALISED_CLASS();
 
 	static constexpr EntityID InvalidID = -1;
 	EntityID GetID() const { return m_id; };
@@ -56,6 +59,11 @@ private:
 	CallbackList<OnSpawnCallback> m_onSpawnCb;
 	CallbackList<OnUnspawnCallback> m_onUnspawnCb;
 };
+
+SDE_SERIALISE_BEGIN(Entity)
+SDE_SERIALISE_PROPERTY("Name",m_name)
+SDE_SERIALISE_PROPERTY("Components", m_components)
+SDE_SERIALISE_END()
 
 template<class ScriptScope>
 void Entity::RegisterScriptType(ScriptScope& scope)
