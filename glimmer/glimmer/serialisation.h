@@ -1,23 +1,27 @@
 #pragma once
 #include <nlohmann/json.hpp>
 
+// add this to the public interface of your class
 #define SDE_SERIALISED_CLASS()	\
-	template<class Archive> void Serialise(Archive&);
+	void Serialise(nlohmann::json::basic_json& json, SDE::Seraliser op);
 
-//#define SDE_SERIALISE_BEGIN(classname)	\
-//	template<class Archive> void classname::Serialise(Archive& a)	\
-//	{	
-//
-//#define SDE_SERIALISE_PROPERTY(name,p)	\
-//		a.archive(name,p);
-//
-//#define SDE_SERIALISE_END()	\
-//	}
-
+// add this to your cpp
 #define SDE_SERIALISE_BEGIN(classname)	\
-	void className::Serialise(Archive& a)
+	void classname::Serialise(nlohmann::json::basic_json& json, SDE::Seraliser op)	\
+	{
 
-struct SerialiseToJson;
-struct SerialiseFromJson;
+// calls parent serialise fn
+#define SDE_SERIALISE_PARENT(parentClass)	\
+		parentClass::Serialise(json,op);
+
+// properties (can handle almost anything)
+#define SDE_SERIALISE_PROPERTY(name,p)	\
+		if(op == SDE::Seraliser::Writer) {	\
+			SDE::ToJson(name, p, json);	\
+		}
+
+// add this at the end!
+#define SDE_SERIALISE_END()	\
+	}
 
 #include "serialisation.inl"

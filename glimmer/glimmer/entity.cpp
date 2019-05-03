@@ -2,6 +2,11 @@
 #include "kernel/atomics.h"
 #include "kernel/assert.h"
 
+SDE_SERIALISE_BEGIN(Entity)
+SDE_SERIALISE_PROPERTY("Name", m_name)
+SDE_SERIALISE_PROPERTY("Components", m_components)
+SDE_SERIALISE_END()
+
 Entity::Entity()
 {
 	m_id = GenerateID();

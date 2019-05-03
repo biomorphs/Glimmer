@@ -60,11 +60,6 @@ private:
 	CallbackList<OnUnspawnCallback> m_onUnspawnCb;
 };
 
-SDE_SERIALISE_BEGIN(Entity)
-SDE_SERIALISE_PROPERTY("Name",m_name)
-SDE_SERIALISE_PROPERTY("Components", m_components)
-SDE_SERIALISE_END()
-
 template<class ScriptScope>
 void Entity::RegisterScriptType(ScriptScope& scope)
 {

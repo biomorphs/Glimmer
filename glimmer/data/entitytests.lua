@@ -22,7 +22,6 @@ local function EntityTest()
 	end
     
 	 entityHandle:GetComponent_TestComponent():DoSomething()
-	 myWorld:DespawnEntity(entityHandle)
 
 	local entityHandle = myWorld:CreateEntity("entity2")	
 	entityHandle:CreateComponent_TestComponent()

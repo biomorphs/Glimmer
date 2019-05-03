@@ -24,16 +24,12 @@ public:
 
 	EntityHandle GetEntity() const { return EntityHandle(m_parent.lock()); }
 
-	SDE_SERIALISED_CLASS();
+	virtual SDE_SERIALISED_CLASS();
 
 protected:
 	Component() = default;				// cannot be instantiated
 	std::weak_ptr<Entity> m_parent;		// weak ptr so we don't extend lifetime of the parent (the parent owns us)
 };
-
-SDE_SERIALISE_BEGIN(Component)
-SDE_SERIALISE_PROPERTY("Type", GetTypeString());
-SDE_SERIALISE_END()
 
 // Default factory used for components with no system
 template<class ComponentType>

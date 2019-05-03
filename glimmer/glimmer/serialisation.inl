@@ -1,46 +1,74 @@
 #pragma once
 
-struct SerialiseToJson
+namespace SDE
 {
-	template<class T> void archive(const char* name, T& v)
+	enum class Seraliser
 	{
-		m_json[name] = v;
+		Reader,
+		Writer
+	};
+
+	template <typename T>		// SFINAE trick to detect Serialise member fn
+	class HasSerialiser
+	{
+		typedef char one;
+		typedef long two;
+
+		template <typename C> static one test(decltype(&C::Serialise));
+		template <typename C> static two test(...);
+
+	public:
+		enum { value = sizeof(test<T>(0)) == sizeof(char) };
+	};
+
+	template<class T>
+	void ToJson(T& v, nlohmann::json::basic_json& json)
+	{
+		if constexpr (HasSerialiser<T>::value)	// I'm in love
+		{
+			v.Serialise(json, SDE::Seraliser::Writer);
+		}
+		else
+		{
+			json = v;
+		}
 	}
 
-	template<class T> void archive(const char* name, T* v)
+	template<class T>
+	void ToJson(T* v, nlohmann::json::basic_json& json)
 	{
-		m_json[name] = v;
+		if constexpr (HasSerialiser<T>::value)
+		{
+			v.Serialise(json, SDE::Seraliser::Writer);
+		}
+		else
+		{
+			json = v;
+		}
 	}
 
-	template<> void archive(const char* name, const char* v)
+	template<class T>
+	void ToJson(const char* name, T& v, nlohmann::json::basic_json& json)
 	{
-		m_json[name] = (std::string)v;
+		json[name] = v;
 	}
 
-	template<class T> void archive(T& v)
+	template<class T>
+	void ToJson(const char* name, T* v, nlohmann::json::basic_json& json)
 	{
-		m_json.push_back(v);
+		json[name] = v;
 	}
 
-	template<class T> void archive(const char* name, std::vector<T>& v)
+	template<class T>
+	void ToJson(const char* name, std::vector<T>& v, nlohmann::json::basic_json& json)
 	{
 		std::vector<nlohmann::json::basic_json> listJson;
 		for (auto& it : v)
 		{
-			SerialiseToJson itJson;
-			it->Serialise(itJson);
-			listJson.push_back(std::move(itJson.m_json));
+			nlohmann::json::basic_json itJson;
+			ToJson(*it, itJson);
+			listJson.push_back(std::move(itJson));
 		}
-		m_json[name] = std::move(listJson);
+		json[name] = std::move(listJson);
 	}
-	nlohmann::json::basic_json m_json;
-};
-
-struct SerialiseFromJson
-{
-	template<class T> void archive(const char* name, T& v)
-	{
-		v = m_json[name];
-	}
-	nlohmann::json::basic_json m_json;
-};
+}

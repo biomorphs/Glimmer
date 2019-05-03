@@ -44,12 +44,6 @@ private:
 	const Version c_currentVersion = Version_0;
 };
 
-SDE_SERIALISE_BEGIN(World)
-	SDE_SERIALISE_PROPERTY("Version", c_currentVersion)
-	SDE_SERIALISE_PROPERTY("SpawningEntities", m_spawnList)
-	SDE_SERIALISE_PROPERTY("ActiveEntities", m_activeList)
-SDE_SERIALISE_END()
-
 template<class ScriptScope>
 void World::RegisterScriptType(ScriptScope& scope)
 {

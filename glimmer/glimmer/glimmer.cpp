@@ -13,6 +13,8 @@
 class TestComponent : public Component
 {
 public:
+	SDE_SERIALISED_CLASS();
+
 	TestComponent() = default;
 	explicit TestComponent(EntityHandle& h)
 		: Component(h)
@@ -30,7 +32,6 @@ public:
 	REGISTER_COMPONENT_TYPE(scope, 
 		TestComponent, DefaultFactory<TestComponent>(),
 		"DoSomething", &TestComponent::DoSomething);
-	SDE_SERIALISED_CLASS();
 private:
 	void OnSpawned()
 	{
@@ -44,6 +45,7 @@ private:
 };
 
 SDE_SERIALISE_BEGIN(TestComponent)
+SDE_SERIALISE_PARENT(Component)
 SDE_SERIALISE_PROPERTY("Bark", m_myBark);
 SDE_SERIALISE_END()
 
@@ -83,14 +85,9 @@ bool Glimmer::PreInit(Core::ISystemEnumerator& systemEnumerator)
 			SDE_LOG("Lua error in entitytests.lua - %s", errorText.c_str());
 		}
 
-		/////////////////////////////////////////////////////
-		//////////////////////////////////////////////////////
-		//////TODO
-		//////FIX SERIALISE FOR INHERITED OBJECTS (MAKE VIRTUAL?)
-
-		SerialiseToJson sj;
-		w.Serialise<SerialiseToJson>(sj);
-		printf(sj.m_json.dump(2).c_str());
+		nlohmann::json json;
+		w.Serialise(json, SDE::Seraliser::Writer);
+		printf(json.dump(2).c_str());
 
 		m_scriptSystem->Globals()["myWorld"] = nullptr;	// going out of scope now
 	}
