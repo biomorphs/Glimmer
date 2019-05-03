@@ -2,12 +2,6 @@
 
 namespace SDE
 {
-	enum class Seraliser
-	{
-		Reader,
-		Writer
-	};
-
 	template <typename T>		// SFINAE trick to detect Serialise member fn
 	class HasSerialiser
 	{
@@ -60,6 +54,19 @@ namespace SDE
 	}
 
 	template<class T>
+	void ToJson(const char* name, std::vector < std::shared_ptr<T> > & v, nlohmann::json::basic_json& json)
+	{
+		std::vector<nlohmann::json::basic_json> listJson;
+		for (auto& it : v)
+		{
+			nlohmann::json::basic_json itJson;
+			ToJson(*it, itJson);
+			listJson.push_back(std::move(itJson));
+		}
+		json[name] = std::move(listJson);
+	}
+
+	template<class T>
 	void ToJson(const char* name, std::vector<T>& v, nlohmann::json::basic_json& json)
 	{
 		std::vector<nlohmann::json::basic_json> listJson;
@@ -70,5 +77,13 @@ namespace SDE
 			listJson.push_back(std::move(itJson));
 		}
 		json[name] = std::move(listJson);
+	}
+
+	///////////////////////////////////////////////
+
+	template<class T>
+	void FromJson(const char* name, T& v, nlohmann::json::basic_json& json)
+	{
+
 	}
 }

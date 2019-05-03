@@ -14,7 +14,6 @@ end
 local function EntityTest()
 	local entityHandle = myWorld:CreateEntity("entity1")	
 	entityHandle:CreateComponent_TestComponent()
-	printEntity(entityHandle)
 	myWorld:SpawnEntity(entityHandle)
 
 	for i = 0, 10 do
@@ -25,7 +24,6 @@ local function EntityTest()
 
 	local entityHandle = myWorld:CreateEntity("entity2")	
 	entityHandle:CreateComponent_TestComponent()
-	printEntity(entityHandle)
 	myWorld:SpawnEntity(entityHandle)
     
 	for i = 0, 10 do
@@ -34,7 +32,6 @@ local function EntityTest()
 
 	local entityHandle = myWorld:CreateEntity("entity3")	
 	entityHandle:CreateComponent_TestComponent()
-	printEntity(entityHandle)
 	myWorld:SpawnEntity(entityHandle)
 end
 

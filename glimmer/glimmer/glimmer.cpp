@@ -89,6 +89,9 @@ bool Glimmer::PreInit(Core::ISystemEnumerator& systemEnumerator)
 		w.Serialise(json, SDE::Seraliser::Writer);
 		printf(json.dump(2).c_str());
 
+		World worldFromJson;
+		worldFromJson.Serialise(json, SDE::Seraliser::Reader);
+
 		m_scriptSystem->Globals()["myWorld"] = nullptr;	// going out of scope now
 	}
 
