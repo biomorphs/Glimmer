@@ -15,20 +15,27 @@ namespace SDE
 #define SDE_SERIALISED_CLASS()	\
 	void Serialise(nlohmann::json::basic_json& json, SDE::Seraliser op);
 
-// add this to your cpp
+// add this to your cpp, generates serialise function + registers factories
 #define SDE_SERIALISE_BEGIN(classname)	\
+	SDE::Internal::ObjectFactory<classname>::Register s_registerFactory_(#classname,[](){ return new classname; });	\
 	void classname::Serialise(nlohmann::json::basic_json& json, SDE::Seraliser op)	\
 	{	\
 		const char* c_myClassName = #classname;
 
-// calls parent serialise fn
-#define SDE_SERIALISE_PARENT(parentClass)	\
-		parentClass::Serialise(json,op);
+// add this to your cpp, generates serialise function + registers factories
+#define SDE_SERIALISE_BEGIN_WITH_PARENT(classname,parent)	\
+	SDE::Internal::ObjectFactory<parent>::Register s_registerFactory_parent_(#classname,[]() { return reinterpret_cast<parent*>(new classname); });	\
+	SDE_SERIALISE_BEGIN(classname)	\
+		parent::Serialise(json,op);	\
 
 // properties (can handle almost anything)
 #define SDE_SERIALISE_PROPERTY(name,p)	\
 		if(op == SDE::Seraliser::Writer) {	\
 			SDE::ToJson(name, p, json);	\
+		}	\
+		else    \
+		{	\
+			SDE::FromJson(name, p, json);	\
 		}
 
 // add this at the end!

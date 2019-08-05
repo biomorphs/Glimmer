@@ -13,8 +13,6 @@
 class TestComponent : public Component
 {
 public:
-	SDE_SERIALISED_CLASS();
-
 	TestComponent() = default;
 	explicit TestComponent(EntityHandle& h)
 		: Component(h)
@@ -29,6 +27,7 @@ public:
 
 	void changeWoof() { m_myBark = "no more woofs"; }
 
+	SDE_SERIALISED_CLASS();
 	REGISTER_COMPONENT_TYPE(scope, 
 		TestComponent, DefaultFactory<TestComponent>(),
 		"DoSomething", &TestComponent::DoSomething);
@@ -44,8 +43,7 @@ private:
 	std::string m_myBark = "woof!";
 };
 
-SDE_SERIALISE_BEGIN(TestComponent)
-SDE_SERIALISE_PARENT(Component)
+SDE_SERIALISE_BEGIN_WITH_PARENT(TestComponent, Component)
 SDE_SERIALISE_PROPERTY("Bark", m_myBark);
 SDE_SERIALISE_END()
 
@@ -89,10 +87,17 @@ bool Glimmer::PreInit(Core::ISystemEnumerator& systemEnumerator)
 		w.Serialise(json, SDE::Seraliser::Writer);
 		printf(json.dump(2).c_str());
 
-		World worldFromJson;
-		worldFromJson.Serialise(json, SDE::Seraliser::Reader);
-
-		m_scriptSystem->Globals()["myWorld"] = nullptr;	// going out of scope now
+		try
+		{
+			World worldFromJson;
+			worldFromJson.Serialise(json, SDE::Seraliser::Reader);
+			m_scriptSystem->Globals()["myWorld"] = nullptr;	// going out of scope now
+		}
+		catch (const sol::error& err)
+		{
+			SDE_LOG(err.what());
+			return false;
+		}
 	}
 
 	return true;

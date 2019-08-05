@@ -45,9 +45,6 @@
     <ClCompile Include="entity.cpp">
       <Filter>EntitySystem</Filter>
     </ClCompile>
-    <ClCompile Include="serialisation.inl">
-      <Filter>Serialisation</Filter>
-    </ClCompile>
     <ClCompile Include="world.cpp">
       <Filter>EntitySystem</Filter>
     </ClCompile>
@@ -86,5 +83,11 @@
     <ClInclude Include="world.h">
       <Filter>EntitySystem</Filter>
     </ClInclude>
+    <ClInclude Include="serialisation.inl">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\..\external\json-3.6.1\nlohmann_json.natvis" />
   </ItemGroup>
 </Project>

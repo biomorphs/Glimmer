@@ -36,12 +36,6 @@ private:
 	std::vector<std::shared_ptr<Entity>> m_spawnList;		// waiting to spawn on next tick
 	std::vector<std::shared_ptr<Entity>> m_unspawnList;		// waiting to unspawn on next tick
 	std::vector<std::shared_ptr<Entity>> m_activeList;		// entities active in the world
-
-	enum Version {
-		Version_0 = 0
-	};
-	const Version c_minSupportedVersion = Version_0;
-	const Version c_currentVersion = Version_0;
 };
 
 template<class ScriptScope>

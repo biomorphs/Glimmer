@@ -221,6 +221,9 @@
     <ClInclude Include="traceboi.h" />
     <ClInclude Include="world.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\..\external\json-3.6.1\nlohmann_json.natvis" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -77,7 +77,6 @@ void World::Tick()
 }
 
 SDE_SERIALISE_BEGIN(World)
-SDE_SERIALISE_PROPERTY("Version", c_currentVersion)
 SDE_SERIALISE_PROPERTY("SpawningEntities", m_spawnList)
 SDE_SERIALISE_PROPERTY("ActiveEntities", m_activeList)
 SDE_SERIALISE_END()

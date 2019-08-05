@@ -13,6 +13,7 @@
 class Component
 {
 public:
+	Component() = default;
 	explicit Component(EntityHandle& e);
 	Component(Component&& other) = default;
 	Component(const Component&) = default;
@@ -27,7 +28,6 @@ public:
 	virtual SDE_SERIALISED_CLASS();
 
 protected:
-	Component() = default;				// cannot be instantiated
 	std::weak_ptr<Entity> m_parent;		// weak ptr so we don't extend lifetime of the parent (the parent owns us)
 };
 
